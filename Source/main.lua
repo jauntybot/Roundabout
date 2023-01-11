@@ -22,7 +22,18 @@ local battleRing = {
     crankProd = 180
 }
 local hero = {
-    image = nil,
+    sprite = {
+        img = nil,
+        loops = {
+            {frames = {19, 24}, flip = gfx.kImageUnflipped},
+            {frames = {13, 18}, flip = gfx.kImageFlippedX},
+            {frames = {7, 12}, flip = gfx.kImageFlippedX},
+            {frames = {1, 6}, flip = gfx.kImageUnflipped},
+            {frames = {7, 12}, flip = gfx.kImageUnflipped},
+            {frames = {13, 18}, flip = gfx.kImageUnflipped},
+        }
+
+    },
     pos = {x=265,y=170},
     sector = battleRing.divisions/2 + 1,
     subsector = 2,
@@ -63,10 +74,12 @@ local hero = {
     }
 }
 local monster = {
-    image = nil,
+    sprite = {
+        img = nil
+    },
     maxHP = 100,
     hp = 100,  
-    attackImages = {
+    attacks = {
         {img = nil, flip = gfx.kImageFlippedY}, --n
         {img = nil, flip = gfx.kImageFlippedXY}, --ne
         {img = nil, flip = gfx.kImageFlippedX}, --se
@@ -74,6 +87,15 @@ local monster = {
         {img = nil, flip = gfx.kImageUnflipped}, --sw
         {img = nil, flip = gfx.kImageFlippedY}  --nw
     },
+    vulnerability = {
+        {img = nil, pos = {x=0,y=0}},
+        {img = nil, pos = {x=0,y=0}},
+        {img = nil, pos = {x=0,y=0}},
+        {img = nil, pos = {x=0,y=0}},
+        {img = nil, pos = {x=0,y=0}},
+        {img = nil, pos = {x=0,y=0}}
+    },
+    vulnerableSectors = {},
     patternDelay = 60,
     co = {
         attackPattern = nil,
@@ -93,7 +115,7 @@ local function coroutineRun(parent, co)
     else parent[co]=nil end
 end
 
-local function DamageFrames(img)
+local function damageFrames(img)
     local delay = 6
     for i=1,2 do
         img:setInverted(true)
@@ -101,7 +123,16 @@ local function DamageFrames(img)
         img:setInverted(false)
         for d=1,delay do coroutine.yield() end
     end
+end
 
+local function heroDamageFrames(img)
+    local delay = 6
+    for i=1,2 do
+        img:setLoopInverted(true)
+        for d=1,delay do coroutine.yield() end
+        img:setLoopInverted(false)
+        for d=1,delay do coroutine.yield() end
+    end
 end
 
 local function heroDrift()
@@ -145,6 +176,8 @@ local function heroChargeAttack()
 end
 
 local function heroAttackCo(frames)
+    spec:clear()
+     
     local from = hero.dist
     local to = hero.attackDist
 
@@ -153,8 +186,19 @@ local function heroAttackCo(frames)
         coroutine.yield()
     end
 -- ATTACK ANIMATION
-    monster.hp -= (hero.attackDmg + hero.attackCharge) -- * monster.dmgMod[monster.slice[hero.sector]]
-    coroutineCreate(monster.co, "damaged", DamageFrames, monster.image)
+    local dmgScale = 0.5
+    if monster.vulnerableSectors then 
+        for i=1, #monster.vulnerableSectors do
+            print ("hero sector: "..hero.sector.."  vulnSector: "..monster.vulnerableSectors[i])
+            if hero.sector == monster.vulnerableSectors[i] then dmgScale = 1.5 break end
+        end
+    end
+    local dmg = (hero.attackDmg + hero.attackCharge) * dmgScale
+    monster.hp -= dmg
+    spec:print(dmg.." dmg")
+    if dmgScale > 1 then spec:print("critical hit!") end
+
+    coroutineCreate(monster.co, "damaged", damageFrames, monster.sprite.img)
 
     hero.attacking = false
     to = hero.moveDist
@@ -174,49 +218,64 @@ local function heroRegenStaminaCo()
     if (hero.stamina > hero.maxStamine) then hero.stamina = hero.maxStamina end
 end
 
+local function heroSpriteAngle(prod)
+    hero.sprite.img:setFirstFrame(hero.sprite.loops[prod].frames[1])
+    hero.sprite.img:setLastFrame(hero.sprite.loops[prod].frames[2])
+end
+
 -- translates crankProd to a position along a circumference
 local function crankToHero()
 -- calculate what sector hero is in
-        local sectorAngle = 360/battleRing.divisions
-        local prod = (battleRing.crankProd+sectorAngle/2)/(battleRing.divisions * 10)
-        prod = math.floor(prod) + 1
-        if prod > battleRing.divisions then prod = 1 end
+    local sectorAngle = 360/battleRing.divisions
+    local prod = (battleRing.crankProd+sectorAngle/2)/(battleRing.divisions * 10)
+    prod = math.floor(prod) + 1
+    if prod > battleRing.divisions then prod = 1 end
 -- hero changes sectors
-        if (prod ~= hero.sector) then
+    if (prod ~= hero.sector) then
 -- hero does not have sufficent stamina
-            if hero.stamina < hero.moveCost then
-                battleRing.crankProd = (hero.sector - 1) * sectorAngle
-                if prod == 1 and hero.sector == battleRing.divisions then
-                    battleRing.crankProd += sectorAngle/2
-                elseif prod == battleRing.divisions and hero.sector == 1 then
-                    battleRing.crankProd -= sectorAngle/2
-                elseif prod < hero.sector then
-                    battleRing.crankProd -= sectorAngle/2
-                elseif prod > hero.sector then
-                    battleRing.crankProd += sectorAngle/2
-                end
-                prod = hero.sector
--- hero has sufficient stamina
-            else
-                hero.stamina -= hero.moveCost
-                hero.co.regen = nil
+        if hero.stamina < hero.moveCost then
+            battleRing.crankProd = (hero.sector - 1) * sectorAngle
+            if prod == 1 and hero.sector == battleRing.divisions then
+                battleRing.crankProd += sectorAngle/2
+            elseif prod == battleRing.divisions and hero.sector == 1 then
+                battleRing.crankProd -= sectorAngle/2
+            elseif prod < hero.sector then
+                battleRing.crankProd -= sectorAngle/2
+            elseif prod > hero.sector then
+                battleRing.crankProd += sectorAngle/2
             end
+            prod = hero.sector
+-- hero has sufficient stamina
+        else
+            hero.stamina -= hero.moveCost
+            hero.co.regen = nil
+            heroSpriteAngle(prod)
         end
--- calculate hero's position on circumference
-        local _x = hero.dist * math.cos((battleRing.crankProd-90)*3.14159/180) + battleRing.center.x
-        local _y = hero.dist * math.sin((battleRing.crankProd-90)*3.14159/180) + battleRing.center.y
-    
-        return {sector = prod, pos = {x=_x,y=_y}}
     end
+-- calculate hero's position on circumference
+    local _x = hero.dist * math.cos((battleRing.crankProd-90)*3.14159/180) + battleRing.center.x
+    local _y = hero.dist * math.sin((battleRing.crankProd-90)*3.14159/180) + battleRing.center.y
+
+    return {sector = prod, pos = {x=_x,y=_y}}
+end
+
 
 local function monsterAttackCo(attackPattern)
     for b=1, #attackPattern do
         local dmgdSectors = {}
+        local vulnSectors = {}
 
         if attackPattern[b].attacking ~= nil then
             for s=1, #attackPattern[b].attacking do
-                monster.attackImages[attackPattern[b].attacking[s]].img:reset()
+                monster.attacks[attackPattern[b].attacking[s]].img:reset()
                 dmgdSectors[#dmgdSectors+1] = attackPattern[b].attacking[s]
+            end
+        end
+        if attackPattern[b].vulnerable ~= nil then
+            for s=1, #attackPattern[b].vulnerable do
+                monster.vulnerability[attackPattern[b].vulnerable[s]].img:setPaused(false)
+                vulnSectors[#vulnSectors+1] = monster.vulnerability[attackPattern[b].vulnerable[s]]
+                monster.vulnerableSectors[#monster.vulnerableSectors+1] = attackPattern[b].vulnerable[s]
             end
         end
 
@@ -225,14 +284,18 @@ local function monsterAttackCo(attackPattern)
         for k,sect in ipairs(dmgdSectors) do
             if (hero.sector == sect) then
                 hero.hp -= 10
-                coroutineCreate(hero.co, "damaged", DamageFrames, hero.image)
+                coroutineCreate(hero.co, "damaged", heroDamageFrames, hero.sprite.img)
             end
+        end
+        for k,sect in ipairs(vulnSectors) do       
+            sect.img:setPaused(true)
+            monster.vulnerableSectors = {}
         end
     end
 end
 
 local function monsterAttackPattern()
-    local attackPattern = {{attacking = {2, 3}}, {attacking = {4, 5}}, {attacking = {6, 1}}, {}}
+    local attackPattern = {{attacking = {2, 3}, vulnerable = {1, 4}}, {attacking = {4, 5}, vulnerable = {3, 6}}, {attacking = {6, 1}, vulnerable = {5, 2}}, {}}
     for i=1, 20 do
         coroutineCreate(monster.co, "attack", monsterAttackCo, attackPattern)
         for d=1, monster.patternDelay * #attackPattern do coroutine.yield() end
@@ -283,7 +346,6 @@ function setup()
     spec:watchMemory()
     spec:watch(hero, "hp")
     spec:watch(hero, "stamina", "stmna")
-    spec:watch(hero, "attackCharge", "atk chrg")
     spec:watch(monster, "hp", "mnstr HP")
 
 
@@ -294,27 +356,38 @@ function setup()
     battleRing.divisionsImage = gfx.image.new("Images/divisions.png")
     assert(battleRing.divisions)
 
-    hero.image = gfx.image.new("Images/hero.png")
-    assert(hero.image)
+    hero.sprite.img = AnimatedImage.new("Images/sprite-PC.gif", {delay = 50, loop = true})
+    assert(hero.sprite.img)
+    heroSpriteAngle(hero.sector)
+
     local heroProd = crankToHero()
     hero.sector = heroProd.sector
     hero.pos = heroProd.pos
 
-    monster.image = gfx.image.new("images/monster.png")
-    assert(monster.image)
+    monster.sprite.img = gfx.image.new("images/monster.png")
+    assert(monster.sprite.img)
 
-    monster.attackImages[1].img = AnimatedImage.new("Images/attackSouth.gif", {delay = 100, loop = false})
-    assert(monster.attackImages[1])
-    monster.attackImages[2].img = AnimatedImage.new("Images/attackSouthWest.gif", {delay = 100, loop = false})
-    assert(monster.attackImages[2])
-    monster.attackImages[3].img = AnimatedImage.new("Images/attackSouthWest.gif", {delay = 100, loop = false})
-    assert(monster.attackImages[3])
-    monster.attackImages[4].img = AnimatedImage.new("Images/attackSouth.gif", {delay = 100, loop = false})
-    assert(monster.attackImages[4])
-    monster.attackImages[5].img = AnimatedImage.new("Images/attackSouthWest.gif", {delay = 100, loop = false})
-    assert(monster.attackImages[5])
-    monster.attackImages[6].img = AnimatedImage.new("Images/attackSouthWest.gif", {delay = 100, loop = false})
-    assert(monster.attackImages[6])
+    monster.attacks[1].img = AnimatedImage.new("Images/attackSouth.gif", {delay = 100, loop = false})
+    assert(monster.attacks[1])
+    monster.attacks[2].img = AnimatedImage.new("Images/attackSouthWest.gif", {delay = 100, loop = false})
+    assert(monster.attacks[2])
+    monster.attacks[3].img = AnimatedImage.new("Images/attackSouthWest.gif", {delay = 100, loop = false})
+    assert(monster.attacks[3])
+    monster.attacks[4].img = AnimatedImage.new("Images/attackSouth.gif", {delay = 100, loop = false})
+    assert(monster.attacks[4])
+    monster.attacks[5].img = AnimatedImage.new("Images/attackSouthWest.gif", {delay = 100, loop = false})
+    assert(monster.attacks[5])
+    monster.attacks[6].img = AnimatedImage.new("Images/attackSouthWest.gif", {delay = 100, loop = false})
+    assert(monster.attacks[6])
+
+    for i=1, #monster.vulnerability do
+        monster.vulnerability[i].img = AnimatedImage.new("Images/vulnerability.gif", {delay = 100, loop = true})
+        monster.vulnerability[i].img:setPaused(true)
+        local sectorAngle = 360/battleRing.divisions
+        local _x = 42 * math.cos((sectorAngle*(i-1)-90)*3.14159/180) + battleRing.center.x
+        local _y = 42 * math.sin((sectorAngle*(i-1)-90)*3.14159/180) + battleRing.center.y
+        monster.vulnerability[i].pos = {x=_x, y=_y}
+    end
 
 -- stack our inputHandler for the battle sequence
     playdate.inputHandlers.push(battleInputHandler)
@@ -337,7 +410,7 @@ function playdate.update()
     elseif (hero.co.charge==nil and hero.co.regen==nil and hero.stamina < hero.maxStamina) then
         coroutineCreate(hero.co, "regen", heroRegenStaminaCo)
     end
-    if (hero.co.damaged~=nil) then coroutineRun(hero.co, "damaged") end
+    if (hero.co.damaged~=nil) then print(coroutine.status(hero.co.damaged)) coroutineRun(hero.co, "damaged") end
     if (hero.co.regen~=nil) then coroutineRun(hero.co, "regen") end
     if (hero.co.drift~=nil) then coroutineRun(hero.co, "drift") end
     if (hero.co.charge~=nil) then coroutineRun(hero.co, "charge") end
@@ -354,15 +427,21 @@ function playdate.update()
 -- draw all sprites; clean into loop w/ classes
     gfx.clear()
 
-    for i, v in ipairs(monster.attackImages) do
+    for i, v in ipairs(monster.attacks) do
         if not v.img:loopFinished() then
             v.img:drawCentered(battleRing.center.x, battleRing.center.y, v.flip)
         end
     end
 
+    for i, v in ipairs(monster.vulnerability) do
+        if not v.img:getPaused() then
+            v.img:drawAnchored(v.pos.x, v.pos.y, 0.3125, 0.625)
+        end
+    end
+
     battleRing.divisionsImage:drawCentered(battleRing.center.x, battleRing.center.y)
-    hero.image:drawCentered(hero.pos.x, hero.pos.y)
-    monster.image:drawCentered(battleRing.center.x, battleRing.center.y)
+    hero.sprite.img:drawCentered(hero.pos.x, hero.pos.y, hero.sprite.loops[hero.sector].flip)
+    monster.sprite.img:drawCentered(battleRing.center.x, battleRing.center.y)
     battleScene.images.bg:drawCentered(200, 120)
 
 

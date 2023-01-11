@@ -83,6 +83,14 @@ function AnimatedImage:loopFinished()
 	return self.loop.frame == self.loop.endFrame
 end
 
+function AnimatedImage:setLoopInverted(flag)
+	for i=self.loop.startFrame, self.loop.endFrame do
+		local img = self.image_table:getImage(i):setInverted(flag)
+		
+		print("no error")
+	end
+end
+
 AnimatedImage.__index = function(animated_image, key)
 	local proxy_value = rawget(AnimatedImage, key)
 	if proxy_value then
