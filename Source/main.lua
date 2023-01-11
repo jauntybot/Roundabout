@@ -56,6 +56,7 @@ local hero = {
     parryDmg = {min = 15, max = 25},
     co = {
         attack = nil,
+        damaged = nil,
         charge = nil,
         drift = nil,
         regen = nil
@@ -76,7 +77,8 @@ local monster = {
     patternDelay = 60,
     co = {
         attackPattern = nil,
-        attack = nil
+        attack = nil,
+        damaged = nil
     }
 }
 
@@ -89,6 +91,17 @@ local function coroutineRun(parent, co)
     if(parent[co] and coroutine.status(parent[co])~='dead') then
         coroutine.resume(parent[co])
     else parent[co]=nil end
+end
+
+local function DamageFrames(img)
+    local delay = 6
+    for i=1,2 do
+        img:setInverted(true)
+        for d=1,delay do coroutine.yield() end
+        img:setInverted(false)
+        for d=1,delay do coroutine.yield() end
+    end
+
 end
 
 local function heroDrift()
@@ -141,6 +154,7 @@ local function heroAttackCo(frames)
     end
 -- ATTACK ANIMATION
     monster.hp -= (hero.attackDmg + hero.attackCharge) -- * monster.dmgMod[monster.slice[hero.sector]]
+    coroutineCreate(monster.co, "damaged", DamageFrames, monster.image)
 
     hero.attacking = false
     to = hero.moveDist
@@ -211,6 +225,7 @@ local function monsterAttackCo(attackPattern)
         for k,sect in ipairs(dmgdSectors) do
             if (hero.sector == sect) then
                 hero.hp -= 10
+                coroutineCreate(hero.co, "damaged", DamageFrames, hero.image)
             end
         end
     end
@@ -223,6 +238,7 @@ local function monsterAttackPattern()
         for d=1, monster.patternDelay * #attackPattern do coroutine.yield() end
     end
 end
+
 
 -- battle control scheme that is pushed onto playdate's battleHandler stack when in battle
 local battleInputHandler = {
@@ -317,28 +333,18 @@ setup()
 
 function playdate.update()
 
-    if (hero.co.attack~=nil) then
-        coroutineRun(hero.co, "attack")
+    if (hero.co.attack~=nil) then coroutineRun(hero.co, "attack")
     elseif (hero.co.charge==nil and hero.co.regen==nil and hero.stamina < hero.maxStamina) then
         coroutineCreate(hero.co, "regen", heroRegenStaminaCo)
     end
-    if (hero.co.regen~=nil) then
-        coroutineRun(hero.co, "regen")
-    end
-    if (hero.co.drift~=nil) then
-        coroutineRun(hero.co, "drift")
-    end
-    if (hero.co.charge~=nil) then
-        coroutineRun(hero.co, "charge")
-    end
+    if (hero.co.damaged~=nil) then coroutineRun(hero.co, "damaged") end
+    if (hero.co.regen~=nil) then coroutineRun(hero.co, "regen") end
+    if (hero.co.drift~=nil) then coroutineRun(hero.co, "drift") end
+    if (hero.co.charge~=nil) then coroutineRun(hero.co, "charge") end
 
-    if (monster.co.attackPattern~=nil) then
-        coroutineRun(monster.co, "attackPattern")
-    end
-    if (monster.co.attack~=nil) then
-        print(coroutine.status(monster.co.attack))
-        coroutineRun(monster.co, "attack")
-    end
+    if (monster.co.attackPattern~=nil) then coroutineRun(monster.co, "attackPattern") end
+    if (monster.co.attack~=nil) then coroutineRun(monster.co, "attack") end
+    if (monster.co.damaged~=nil) then coroutineRun(monster.co, "damaged") end
 
 -- apply our stored crank product to hero
     local heroProd = crankToHero()
