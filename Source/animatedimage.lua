@@ -30,6 +30,7 @@ function AnimatedImage.new(image_table_path, options)
 	setmetatable(animated_image, AnimatedImage)
 	animated_image.image_table = image_table
 	animated_image.loop = animation_loop
+	animated_image.loop.frame = animated_image.loop.endFrame
 	
 	return animated_image
 end
@@ -76,6 +77,10 @@ end
 
 function AnimatedImage:setLastFrame(frame)
 	self.loop.endFrame = frame
+end
+
+function AnimatedImage:loopFinished()
+	return self.loop.frame == self.loop.endFrame
 end
 
 AnimatedImage.__index = function(animated_image, key)
