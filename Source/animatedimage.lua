@@ -86,8 +86,6 @@ end
 function AnimatedImage:setLoopInverted(flag)
 	for i=self.loop.startFrame, self.loop.endFrame do
 		local img = self.image_table:getImage(i):setInverted(flag)
-		
-		print("no error")
 	end
 end
 
