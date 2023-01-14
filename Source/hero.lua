@@ -5,6 +5,7 @@ local gfx <const> = playdate.graphics
 
 class('Hero').extends()
 
+
 local sprite = {
     img = nil,
     loops = {
@@ -36,10 +37,10 @@ local driftDelay = 15
 local driftSpeed = 2
 
 local maxHP = 100
-local hp = 100
+hp = 100
 
 local maxStamina = 100
-local stamina = 100
+Stamina = 100
 local moveCost = 10
 local attackCost = 10
 
@@ -76,36 +77,10 @@ local function heroDamageFrames(img)
     end
 end
 
-function Hero:heroDrift(crankProd, divisions)
-    for d=1,driftDelay do
-        coroutine.yield()
-    end
-
-    local sectorAngle = 360/divisions
-    local from
-    if crankProd > 360/divisions * (divisions - .5) then
-        from = -(360 - crankProd)
-    else
-        from = crankProd
-    end
-
-    local dest = (Sector - 1) * sectorAngle
-
-    local t = math.abs(from - dest) / driftSpeed
-    for f=1,t do
-    
-        crankProd = from+f/t*(dest - from)
-        coroutine.yield()
-    end
-
-    return crankProd
-end
-
-
 local function heroChargeAttack()
     while attackCharge < maxCharge do
-        if stamina - chargeRate > 0 then
-            stamina -= chargeRate
+        if Stamina - chargeRate > 0 then
+            Stamina -= chargeRate
             attackCharge += chargeRate
             dist = moveDist + chargeDist * (attackCharge/maxCharge)
             coroutine.yield()
@@ -113,13 +88,13 @@ local function heroChargeAttack()
     end
 end
 
-function Hero:ChargeAttack()
-    if (stamina > attackCost) then
+function Hero:chargeAttack()
+    if (Stamina > attackCost) then
         Co.regen = nil
         Co.drift = nil
     
         attackCharge = 0
-        stamina -= attackCost
+        Stamina -= attackCost
         attacking = true
         coroutineCreate(Co, "charge", heroChargeAttack)
     end
@@ -161,18 +136,18 @@ end
 
 function Hero:releaseAttack()
     Co.charge = nil
-    if (Co.attack==nil and hero.attacking) then
+    if (Co.attack==nil and attacking) then
 --        coroutineCreate(Co, "attack", heroAttackCo, attackSpeed)
     end
 end
 
 local function heroRegenStaminaCo()
     for d=1,regenDelay do coroutine.yield() end
-    while stamina < maxStamina do
-        stamina += regenRate/50
+    while Stamina < maxStamina do
+        Stamina += regenRate/50
         coroutine.yield()
     end
-    if (stamina > maxStamina) then stamina = maxStamina end
+    if (Stamina > maxStamina) then Stamina = maxStamina end
 end
 
 local function heroSpriteAngle(prod)
@@ -181,7 +156,7 @@ local function heroSpriteAngle(prod)
 end
 
 -- translates crankProd to a position along a circumference
-function Hero:MoveByCrank(crankProd, divisions, center)
+function Hero:moveByCrank(crankProd, divisions, center)
 -- calculate what sector hero is in
     local sectorAngle = 60
     local prod = (crankProd+sectorAngle/2)/(6 * 10)
@@ -190,7 +165,7 @@ function Hero:MoveByCrank(crankProd, divisions, center)
 -- hero changes sectors
     if (prod ~= Sector) then
 -- hero does not have sufficent stamina
-        if stamina < moveCost then
+        if Stamina < moveCost then
             crankProd = (Sector - 1) * sectorAngle
             if prod == 1 and Sector == 6 then
                 crankProd += sectorAngle/2
@@ -198,13 +173,13 @@ function Hero:MoveByCrank(crankProd, divisions, center)
                 crankProd -= sectorAngle/2
             elseif prod < Sector then
                 crankProd -= sectorAngle/2
-            elseif prod > sector then
+            elseif prod > Sector then
                 crankProd += sectorAngle/2
             end
             prod = Sector
 -- hero has sufficient stamina
         else
-            stamina -= moveCost
+            Stamina -= moveCost
             Co.regen = nil
             heroSpriteAngle(prod)
         end
@@ -215,6 +190,7 @@ function Hero:MoveByCrank(crankProd, divisions, center)
 
     Sector = prod
     pos = {x=_x, y=_y}
+    return crankProd
 end
 
 function Hero:init()
@@ -222,13 +198,16 @@ function Hero:init()
     assert(sprite.img)
     heroSpriteAngle(Sector)
 
-    self.MoveByCrank(180, 6, {x=265,y=120})
-
+    self.moveByCrank(180, 6, {x=265,y=120})
 end
 
-function playdate.update()
+function Hero:draw()
+    sprite.img:drawCentered(pos.x, pos.y, sprite.loops[Sector].flip)
+end
+
+function Hero:update()
     if (Co.attack~=nil) then coroutineRun(Co, "attack")
-    elseif (Co.charge==nil and Co.regen==nil and stamina < maxStamina) then
+    elseif (Co.charge==nil and Co.regen==nil and Stamina < maxStamina) then
         coroutineCreate(Co, "regen", heroRegenStaminaCo)
     end
     if (Co.damaged~=nil) then print(coroutine.status(Co.damaged)) coroutineRun(Co, "damaged") end
@@ -236,6 +215,4 @@ function playdate.update()
     if (Co.drift~=nil) then coroutineRun(Co, "drift") end
     if (Co.charge~=nil) then coroutineRun(Co, "charge") end
 
-    
-    sprite.img:drawCentered(pos.x, pos.y, sprite.loops[Sector].flip)
 end
