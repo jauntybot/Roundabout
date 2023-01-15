@@ -5,6 +5,7 @@ import "CoreLibs/ui"
 import "animatedimage"
 import "spectacle"
 import "battleRing"
+import "soundManager"
 
 local gfx <const> = playdate.graphics
 local timer <const> = playdate.timer

@@ -1,60 +1,13 @@
 
 import "CoreLibs/graphics"
+import "animatedimage"
+import "battleRing"
 
 local gfx <const> = playdate.graphics
 
-class('Hero').extends()
+import "spectacle"
+spec = Spectacle({font = "fonts/font-rains-1x", line_height = 1.0, lines = 2, background=playdate.graphics.kColorWhite})
 
-
-local sprite = {
-    img = nil,
-    loops = {
-        {frames = {19, 24}, flip = gfx.kImageUnflipped},
-        {frames = {13, 18}, flip = gfx.kImageFlippedX},
-        {frames = {7, 12}, flip = gfx.kImageFlippedX},
-        {frames = {1, 6}, flip = gfx.kImageUnflipped},
-        {frames = {7, 12}, flip = gfx.kImageUnflipped},
-        {frames = {13, 18}, flip = gfx.kImageUnflipped},
-    }
-}
-local pos = {x=265,y=170}
-Sector = 4
-Subsector = 2
-local dist = 80
-local moveDist = 80
-
-local attacking = true
-local attackDist = 32
-local attackSpeed = 10
-local attackDmg = 10
-
-local chargeDist = 32
-local chargeRate = .1
-local maxCharge = 10
-local attackCharge = 0
-
-local driftDelay = 15
-local driftSpeed = 2
-
-local maxHP = 100
-hp = 100
-
-local maxStamina = 100
-Stamina = 100
-local moveCost = 10
-local attackCost = 10
-
-local regenDelay = 25
-local regenRate = 5
-
-local parryDmg = {min = 15, max = 25}
-Co = {
-    attack = nil,
-    damaged = nil,
-    charge = nil,
-    drift = nil,
-    regen = nil
-}
 
 local function coroutineCreate(parent, co, f, params)
     parent[co] = coroutine.create(f)
@@ -67,7 +20,51 @@ local function coroutineRun(parent, co)
     else parent[co]=nil end
 end
 
-local function heroDamageFrames(img)
+local function chargeAttack(hero)
+    while hero.attackCharge < hero.maxCharge do
+        if hero.stamina - hero.chargeRate > 0 then
+            hero.stamina -= hero.chargeRate
+            hero.attackCharge += hero.chargeRate
+            hero.dist = hero.moveDist + hero.chargeDist * (hero.attackCharge/hero.maxCharge)
+            coroutine.yield()
+        else return end
+    end
+end
+
+local function attack(hero)
+    local from = hero.dist
+    local to = hero.attackDist
+
+    for f=1,hero.attackSpeed do
+        hero.dist = from+f/hero.attackSpeed*(to - from)
+        coroutine.yield()
+    end
+
+    hero.attacking = false
+    to = hero.moveDist
+    from = hero.dist
+    for f=1,hero.attackSpeed do
+        hero.dist = from+f/hero.attackSpeed*(to - from)
+        coroutine.yield()
+    end
+end
+
+local function regenStamina(hero)
+    for d=1,hero.regenDelay do coroutine.yield()  end
+    while hero.stamina < hero.maxStamina do
+        hero.stamina += hero.regenRate/50
+        coroutine.yield()
+    end
+    if (hero.stamina > hero.maxStamina) then hero.stamina = hero.maxStamina end
+end
+
+local function parryTiming(hero)
+    hero.parrying = true
+    for d=1, hero.parryDelay do coroutine.yield() end
+    hero.parrying = false
+end
+
+local function damageFrames(img)
     local delay = 6
     for i=1,2 do
         img:setLoopInverted(true)
@@ -77,142 +74,162 @@ local function heroDamageFrames(img)
     end
 end
 
-local function heroChargeAttack()
-    while attackCharge < maxCharge do
-        if Stamina - chargeRate > 0 then
-            Stamina -= chargeRate
-            attackCharge += chargeRate
-            dist = moveDist + chargeDist * (attackCharge/maxCharge)
-            coroutine.yield()
-        else return end
-    end
+class('Hero', battleRing).extends()
+
+
+function Hero:spriteAngle(slice)
+    self.sprite.img:setFirstFrame(self.sprite.loops[slice].frames[1])
+    self.sprite.img:setLastFrame(self.sprite.loops[slice].frames[2])
+end
+
+function Hero:init()
+    self.battleRing = battleRing
+
+    self.sprite = {
+        img = nil,
+        loops = {
+            {frames = {19, 24}, flip = gfx.kImageUnflipped},
+            {frames = {13, 18}, flip = gfx.kImageFlippedX},
+            {frames = {7, 12}, flip = gfx.kImageFlippedX},
+            {frames = {1, 6}, flip = gfx.kImageUnflipped},
+            {frames = {7, 12}, flip = gfx.kImageUnflipped},
+            {frames = {13, 18}, flip = gfx.kImageUnflipped},
+        }
+    }
+    self.pos = {x=265,y=170}
+    self.sector = 4
+    self.dist = 80
+    self.moveDist = 80
+
+    self.attacking = true
+    self.attackDist = 32
+    self.attackSpeed = 10
+    self.attackDmg = 10
+
+    self.chargeDist = 32
+    self.chargeRate = 0.1
+    self.maxCharge = 10
+    self.attackCharge = 0
+
+    self.driftDelay = 15
+    self.driftSpeed = 2
+
+    self.maxHP = 100
+    self.hp = 100
+
+    self.maxStamina = 100
+    self.stamina = 100
+    self.moveCost = 10
+    self.attackCost = 10
+    self.parryCost = 10
+
+    self.regenDelay = 25
+    self.regenRate = 5
+
+    self.parrying = false
+    self.parryDelay = 15
+
+    self.co = {
+        attack = nil,
+        damaged = nil,
+        charge = nil,
+        regen = nil,
+        parry = nil
+    }
+
+    self.sprite.img = AnimatedImage.new("Images/sprite-PC.gif", {delay = 50, loop = true})
+    assert(self.sprite.img)
+
+    self:spriteAngle(4)
+end
+
+function Hero:takeDmg(dmg)
+    self.hp -= dmg
+    SoundManager:playSound(SoundManager.kSoundHeroDmg)
+    coroutineCreate(self.co, "damaged", damageFrames, self.sprite.img)
 end
 
 function Hero:chargeAttack()
-    if (Stamina > attackCost) then
-        Co.regen = nil
-        Co.drift = nil
+    if (self.stamina > self.attackCost) then
+        self.co.regen = nil
+        self.co.drift = nil
     
-        attackCharge = 0
-        Stamina -= attackCost
-        attacking = true
-        coroutineCreate(Co, "charge", heroChargeAttack)
+        self.attackCharge = 0
+        self.stamina -= self.attackCost
+        self.attacking = true
+        coroutineCreate(self.co, "charge", chargeAttack, self)
     end
 end
 
-local function heroAttackCo(frames)
-    spec:clear()
-     
-    local from = dist
-    local to = attackDist
-
-    for f=1,frames do
-        dist = from+f/frames*(to - from)
-        coroutine.yield()
-    end
--- ATTACK ANIMATION
-    local dmgScale = 0.5
-    if monster.vulnerableSectors then 
-        for i=1, #monster.vulnerableSectors do
-            print ("hero sector: "..hero.sector.."  vulnSector: "..monster.vulnerableSectors[i])
-            if sector == monster.vulnerableSectors[i] then dmgScale = 1.5 break end
-        end
-    end
-    local dmg = (attackDmg + attackCharge) * dmgScale
-    monster.hp -= dmg
-    spec:print(dmg.." dmg")
-    if dmgScale > 1 then spec:print("critical hit!") end
-
-    coroutineCreate(monster.co, "damaged", damageFrames, monster.sprite.img)
-
-    attacking = false
-    to = moveDist
-    from = dist
-    for f=1,frames do
-        dist = from+f/frames*(to - from)
-        coroutine.yield()
+function Hero:releaseAttack(target)
+    self.co.charge = nil
+    if (self.co.attack==nil and self.attacking) then
+        coroutineCreate(self.co, "attack", attack, self)
+        SoundManager:playSound(SoundManager.kSoundHeroSwipe)
+        target:takeDmg(self.attackDmg + self.attackCharge, self.sector)
     end
 end
 
-function Hero:releaseAttack()
-    Co.charge = nil
-    if (Co.attack==nil and attacking) then
---        coroutineCreate(Co, "attack", heroAttackCo, attackSpeed)
+function Hero:parry()
+    if (self.stamina > self.parryCost) then
+        self.stamina -= self.parryCost
+        self.co.charge = nil
+        self.co.regen = nil
+        self.co.drift = nil
+        coroutineCreate(self.co, "parry", parryTiming, self)
+        SoundManager:playSound(SoundManager.kSoundGuardHold)
     end
 end
 
-local function heroRegenStaminaCo()
-    for d=1,regenDelay do coroutine.yield() end
-    while Stamina < maxStamina do
-        Stamina += regenRate/50
-        coroutine.yield()
-    end
-    if (Stamina > maxStamina) then Stamina = maxStamina end
-end
-
-local function heroSpriteAngle(prod)
-    sprite.img:setFirstFrame(sprite.loops[prod].frames[1])
-    sprite.img:setLastFrame(sprite.loops[prod].frames[2])
-end
 
 -- translates crankProd to a position along a circumference
-function Hero:moveByCrank(crankProd, divisions, center)
+function Hero:moveByCrank(crankProd)
 -- calculate what sector hero is in
     local sectorAngle = 60
     local prod = (crankProd+sectorAngle/2)/(6 * 10)
     prod = math.floor(prod) + 1
     if prod > 6 then prod = 1 end
 -- hero changes sectors
-    if (prod ~= Sector) then
+    if (prod ~= self.sector) then
 -- hero does not have sufficent stamina
-        if Stamina < moveCost then
-            crankProd = (Sector - 1) * sectorAngle
-            if prod == 1 and Sector == 6 then
+        if self.stamina < self.moveCost then
+            crankProd = (self.sector - 1) * sectorAngle
+            if prod == 1 and self.sector == 6 then
                 crankProd += sectorAngle/2
-            elseif prod == 6 and Sector == 1 then
+            elseif prod == 6 and self.sector == 1 then
                 crankProd -= sectorAngle/2
-            elseif prod < Sector then
+            elseif prod < self.sector then
                 crankProd -= sectorAngle/2
-            elseif prod > Sector then
+            elseif prod > self.sector then
                 crankProd += sectorAngle/2
             end
-            prod = Sector
+            prod = self.sector
 -- hero has sufficient stamina
         else
-            Stamina -= moveCost
-            Co.regen = nil
-            heroSpriteAngle(prod)
+            self.stamina -= self.moveCost
+            self.co.regen = nil
+            self:spriteAngle(prod)
+            SoundManager:playSound(SoundManager.kSoundDodgeRoll)
         end
     end
 -- calculate hero's position on circumference
-    local _x = dist * math.cos((crankProd-90)*3.14159/180) + 265
-    local _y = dist * math.sin((crankProd-90)*3.14159/180) + 120
+    local _x = self.dist * math.cos((crankProd-90)*3.14159/180) + 265
+    local _y = self.dist * math.sin((crankProd-90)*3.14159/180) + 120
 
-    Sector = prod
-    pos = {x=_x, y=_y}
+    self.sector = prod
+    self.pos = {x=_x, y=_y}
+
     return crankProd
 end
 
-function Hero:init()
-    sprite.img = AnimatedImage.new("Images/sprite-PC.gif", {delay = 50, loop = true})
-    assert(sprite.img)
-    heroSpriteAngle(Sector)
-
-    self.moveByCrank(180, 6, {x=265,y=120})
-end
-
-function Hero:draw()
-    sprite.img:drawCentered(pos.x, pos.y, sprite.loops[Sector].flip)
-end
 
 function Hero:update()
-    if (Co.attack~=nil) then coroutineRun(Co, "attack")
-    elseif (Co.charge==nil and Co.regen==nil and Stamina < maxStamina) then
-        coroutineCreate(Co, "regen", heroRegenStaminaCo)
+    if (self.co.attack~=nil) then coroutineRun(self.co, "attack")
+    elseif (self.co.charge==nil and self.co.regen==nil and self.stamina < self.maxStamina) then
+        coroutineCreate(self.co, "regen", regenStamina, self)
     end
-    if (Co.damaged~=nil) then print(coroutine.status(Co.damaged)) coroutineRun(Co, "damaged") end
-    if (Co.regen~=nil) then coroutineRun(Co, "regen") end
-    if (Co.drift~=nil) then coroutineRun(Co, "drift") end
-    if (Co.charge~=nil) then coroutineRun(Co, "charge") end
-
+    if (self.co.damaged~=nil) then coroutineRun(self.co, "damaged") end
+    if (self.co.regen~=nil) then coroutineRun(self.co, "regen") end
+    if (self.co.charge~=nil) then coroutineRun(self.co, "charge") end
+    if (self.co.parry~=nil) then coroutineRun(self.co, "parry") end
 end
