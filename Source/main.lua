@@ -6,6 +6,7 @@ import "animatedimage"
 import "spectacle"
 import "battleRing"
 import "soundManager"
+import "gameManager"
 
 local gfx <const> = playdate.graphics
 local timer <const> = playdate.timer
@@ -16,7 +17,9 @@ local battleScene = {
     }
 }
 
+local gameManager = GameManager()
 local battleRing = BattleRing()
+
 
 local function setup()
 
@@ -24,10 +27,6 @@ local function setup()
     playdate.display.setRefreshRate(50)
     gfx.setBackgroundColor(gfx.kColorWhite)
 
-
--- path based image references
-    battleScene.images.bg = AnimatedImage.new("Images/BG-1-dither.gif", {delay = 50, loop = true})
-    assert(battleScene.images.bg)
 
 -- Initialize crank alert
     playdate.ui.crankIndicator:start()
@@ -38,14 +37,12 @@ setup()
 function playdate.update()
 
     battleRing:update()
+    gameManager:update()
 
 -- draw all sprites; clean into loop w/ classes
     gfx.clear()
 
     battleRing:draw()
-
-    battleScene.images.bg:drawCentered(200, 120)
-
     battleRing:drawUI()
 
 

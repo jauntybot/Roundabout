@@ -26,6 +26,7 @@ function AnimatedImage.new(image_table_path, options)
 	animation_loop.startFrame = options.first or 1
 	animation_loop.endFrame = options.last or image_table:getLength()
 	
+	
 	local animated_image = {}
 	setmetatable(animated_image, AnimatedImage)
 	animated_image.image_table = image_table
@@ -83,8 +84,9 @@ function AnimatedImage:loopFinished()
 	return self.loop.frame == self.loop.endFrame
 end
 
-function AnimatedImage:setLoopInverted(flag)
-	for i=self.loop.startFrame, self.loop.endFrame do
+function AnimatedImage:setTableInverted(flag)
+	print(self.image_table:getLength())
+	for i=1, self.image_table:getLength() do
 		local img = self.image_table:getImage(i):setInverted(flag)
 	end
 end

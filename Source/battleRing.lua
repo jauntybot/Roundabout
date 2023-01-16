@@ -58,6 +58,7 @@ function BattleRing:init()
     self.center = {x=265,y=120}
     self.divisions = 6
     self.divisionsImage = nil
+    self.bgImage = nil
     self.crankProd = 180
     self.co = {
         drift = nil
@@ -85,7 +86,7 @@ function BattleRing:init()
         end,
     
         upButtonUp = function()
-            Hero:releaseAttack(Monster, self.sector)
+            Hero:releaseAttack(Monster)
         end,
 
         downButtonDown = function()
@@ -94,8 +95,11 @@ function BattleRing:init()
     
     }
 
+-- path based image reference
     self.divisionsImage = playdate.graphics.image.new("Images/divisions.png")
     assert(self.divisionsImage)
+    self.bgImage = AnimatedImage.new("Images/BG-1-dither.gif", {delay = 100, loop = true})
+    assert(self.bgImage)
 
 -- stack our inputHandler for the battle sequence
     playdate.inputHandlers.push(self.battleInputHandler)
@@ -107,7 +111,7 @@ end
 function BattleRing:update()
 
     if self.co.drift ~= nil then coroutineRun(self.co, "drift") end
-    
+
     self.crankProd = Hero:moveByCrank(self.crankProd)
     Hero:update()
     Monster:update()
@@ -118,7 +122,8 @@ function BattleRing:draw()
     Monster:drawAttacks()
     self.divisionsImage:drawCentered(self.center.x, self.center.y)
     Monster.sprite.img:drawCentered(265, 120)
-    Hero.sprite.img:drawCentered(Hero.pos.x, Hero.pos.y, Hero.sprite.loops[Hero.sector].flip)
+    Hero:draw()
+    self.bgImage:drawCentered(200, 120)
 end
 
 function BattleRing:drawUI()

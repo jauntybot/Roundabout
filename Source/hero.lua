@@ -1,13 +1,4 @@
-
-import "CoreLibs/graphics"
-import "animatedimage"
-import "battleRing"
-
 local gfx <const> = playdate.graphics
-
-import "spectacle"
-spec = Spectacle({font = "fonts/font-rains-1x", line_height = 1.0, lines = 2, background=playdate.graphics.kColorWhite})
-
 
 local function coroutineCreate(parent, co, f, params)
     parent[co] = coroutine.create(f)
@@ -21,28 +12,28 @@ local function coroutineRun(parent, co)
 end
 
 local function chargeAttack(hero)
+    local to = hero.attackDist
+    local from = hero.dist
+    hero.smearSprite.img:reset()
+    hero.smearSprite.img:setPaused(true)
     while hero.attackCharge < hero.maxCharge do
         if hero.stamina - hero.chargeRate > 0 then
             hero.stamina -= hero.chargeRate
             hero.attackCharge += hero.chargeRate
-            hero.dist = hero.moveDist + hero.chargeDist * (hero.attackCharge/hero.maxCharge)
+            hero.dist = hero.moveDist - hero.chargeDist * (hero.attackCharge/hero.maxCharge)
+            hero.dist = from+hero.attackCharge/hero.maxCharge*(to - from)
             coroutine.yield()
         else return end
     end
 end
 
 local function attack(hero)
-    local from = hero.dist
-    local to = hero.attackDist
-
-    for f=1,hero.attackSpeed do
-        hero.dist = from+f/hero.attackSpeed*(to - from)
-        coroutine.yield()
-    end
-
+    
     hero.attacking = false
-    to = hero.moveDist
-    from = hero.dist
+    hero.smearSprite.img:reset()
+    hero.smearSprite.img:setPaused(false)
+    local to = hero.moveDist
+    local from = hero.dist
     for f=1,hero.attackSpeed do
         hero.dist = from+f/hero.attackSpeed*(to - from)
         coroutine.yield()
@@ -60,16 +51,22 @@ end
 
 local function parryTiming(hero)
     hero.parrying = true
+    hero.smearSprite.img:reset()
+    hero.smearSprite.img:setPaused(true)
     for d=1, hero.parryDelay do coroutine.yield() end
+    if hero.smearSprite.img:getPaused() then
+        hero.smearSprite.img:setPaused(false)
+        hero.smearSprite.img:setFrame(#hero.smearSprite.img.image_table)
+    end
     hero.parrying = false
 end
 
 local function damageFrames(img)
     local delay = 6
     for i=1,2 do
-        img:setLoopInverted(true)
+        img:setTableInverted(true)
         for d=1,delay do coroutine.yield() end
-        img:setLoopInverted(false)
+        img:setTableInverted(false)
         for d=1,delay do coroutine.yield() end
     end
 end
@@ -80,6 +77,8 @@ class('Hero', battleRing).extends()
 function Hero:spriteAngle(slice)
     self.sprite.img:setFirstFrame(self.sprite.loops[slice].frames[1])
     self.sprite.img:setLastFrame(self.sprite.loops[slice].frames[2])
+    self.smearSprite.img:setFirstFrame(self.smearSprite.loops[slice].frames[1])
+    self.smearSprite.img:setLastFrame(self.smearSprite.loops[slice].frames[2])
 end
 
 function Hero:init()
@@ -96,10 +95,21 @@ function Hero:init()
             {frames = {13, 18}, flip = gfx.kImageUnflipped},
         }
     }
+    self.smearSprite = {
+        img = nil,
+        loops = {
+            {frames = {1, 5}, flip = gfx.kImageFlippedY, topSort = true},
+            {frames = {6, 11}, flip = gfx.kImageFlippedXY, topSort = true},
+            {frames = {6, 11}, flip = gfx.kImageFlippedX, topSort = false},
+            {frames = {1, 5}, flip = gfx.kImageUnflipped, topSort = false},
+            {frames = {6, 11}, flip = gfx.kImageUnflipped, topSort = false},
+            {frames = {6, 11}, flip = gfx.kImageFlippedY, topSort = true},
+        }
+    }
     self.pos = {x=265,y=170}
     self.sector = 4
-    self.dist = 80
-    self.moveDist = 80
+    self.dist = 96
+    self.moveDist = 96
 
     self.attacking = true
     self.attackDist = 32
@@ -107,7 +117,7 @@ function Hero:init()
     self.attackDmg = 10
 
     self.chargeDist = 32
-    self.chargeRate = 0.1
+    self.chargeRate = 0.25
     self.maxCharge = 10
     self.attackCharge = 0
 
@@ -137,8 +147,10 @@ function Hero:init()
         parry = nil
     }
 
-    self.sprite.img = AnimatedImage.new("Images/sprite-PC.gif", {delay = 50, loop = true})
+    self.sprite.img = AnimatedImage.new("Images/sprite-PC.gif", {delay = 100, loop = true})
     assert(self.sprite.img)
+    self.smearSprite.img = AnimatedImage.new("Images/heroSmears.gif", {delay = 50, loop = false})
+    assert(self.smearSprite.img)
 
     self:spriteAngle(4)
 end
@@ -167,6 +179,7 @@ function Hero:releaseAttack(target)
         coroutineCreate(self.co, "attack", attack, self)
         SoundManager:playSound(SoundManager.kSoundHeroSwipe)
         target:takeDmg(self.attackDmg + self.attackCharge, self.sector)
+        self.smearSprite.img:reset()
     end
 end
 
@@ -179,6 +192,11 @@ function Hero:parry()
         coroutineCreate(self.co, "parry", parryTiming, self)
         SoundManager:playSound(SoundManager.kSoundGuardHold)
     end
+end
+
+function Hero:parryHitAnim()
+    self.smearSprite.img:setPaused(false)
+    SoundManager:playSound(SoundManager.kSoundPerfectGuard)
 end
 
 
@@ -232,4 +250,11 @@ function Hero:update()
     if (self.co.regen~=nil) then coroutineRun(self.co, "regen") end
     if (self.co.charge~=nil) then coroutineRun(self.co, "charge") end
     if (self.co.parry~=nil) then coroutineRun(self.co, "parry") end
+end
+
+function Hero:draw()
+    self.sprite.img:drawCentered(self.pos.x, self.pos.y, self.sprite.loops[self.sector].flip)
+    if not self.smearSprite.img:loopFinished() or self.smearSprite.img:getPaused() then
+        self.smearSprite.img:drawCentered(self.pos.x, self.pos.y, self.smearSprite.loops[self.sector].flip)
+    end
 end

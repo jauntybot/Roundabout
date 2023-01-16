@@ -42,7 +42,7 @@ local function attack(monster, sequence, hero)
                     hero:takeDmg(monster.dmg)
                 else
                     monster:takeDmg(hero.attackDmg, hero.sector)
-                    SoundManager:playSound(SoundManager.kSoundPerfectGuard)
+                    hero:parryHitAnim()
                 end
             end
         end
