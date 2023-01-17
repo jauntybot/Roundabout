@@ -114,7 +114,7 @@ function Monster:init(battleRing)
         {img = nil, pos = {x=0,y=0}}
     }
     self.vulnerableSectors = {}
-    self.patternDelay = 60
+    self.patternDelay = 30
     self.attackPattern = {
         {{attacking = {2, 3}, vulnerable = {1, 4}}, {attacking = {4, 5}, vulnerable = {3, 6}}, {attacking = {6, 1}, vulnerable = {5, 2}}, {}},
         {{attacking = {3,4}}, {attacking = {4,5}}, {attacking = {5,6}}, {attacking = {6,1}}, {attacking = {1,2}}, {vulnerable = {2}},{vulnerable ={2}}, {}},
@@ -131,17 +131,17 @@ function Monster:init(battleRing)
 
     self.entranceDuration = 25
 
-    self.attacks[1].img = AnimatedImage.new("Images/attackSouth.gif", {delay = 100, loop = false})
+    self.attacks[1].img = AnimatedImage.new("Images/attackSouth.gif", {delay = 50, loop = false})
     assert(self.attacks[1])
-    self.attacks[2].img = AnimatedImage.new("Images/attackSouthWest.gif", {delay = 100, loop = false})
+    self.attacks[2].img = AnimatedImage.new("Images/attackSouthWest.gif", {delay = 50, loop = false})
     assert(self.attacks[2])
-    self.attacks[3].img = AnimatedImage.new("Images/attackSouthWest.gif", {delay = 100, loop = false})
+    self.attacks[3].img = AnimatedImage.new("Images/attackSouthWest.gif", {delay = 50, loop = false})
     assert(self.attacks[3])
-    self.attacks[4].img = AnimatedImage.new("Images/attackSouth.gif", {delay = 100, loop = false})
+    self.attacks[4].img = AnimatedImage.new("Images/attackSouth.gif", {delay = 50, loop = false})
     assert(self.attacks[4])
-    self.attacks[5].img = AnimatedImage.new("Images/attackSouthWest.gif", {delay = 100, loop = false})
+    self.attacks[5].img = AnimatedImage.new("Images/attackSouthWest.gif", {delay = 50, loop = false})
     assert(self.attacks[5])
-    self.attacks[6].img = AnimatedImage.new("Images/attackSouthWest.gif", {delay = 100, loop = false})
+    self.attacks[6].img = AnimatedImage.new("Images/attackSouthWest.gif", {delay = 50, loop = false})
     assert(self.attacks[6])
 
     for i=1, #self.vulnerability do

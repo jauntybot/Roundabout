@@ -27,13 +27,13 @@ local function chargeAttack(hero)
     hero.smearSprite.img:reset()
     hero.smearSprite.img:setPaused(true)
     while hero.attackCharge < hero.maxCharge do
-        if hero.stamina - hero.chargeRate > 0 then
-            hero.stamina -= hero.chargeRate
+--        if hero.stamina - hero.chargeRate > 0 then
+--            hero.stamina -= hero.chargeRate
             hero.attackCharge += hero.chargeRate
             hero.dist = hero.moveDist - hero.chargeDist * (hero.attackCharge/hero.maxCharge)
             hero.dist = from+hero.attackCharge/hero.maxCharge*(to - from)
             coroutine.yield()
-        else return end
+--        else return end
     end
 end
 
@@ -178,15 +178,15 @@ function Hero:takeDmg(dmg)
 end
 
 function Hero:chargeAttack()
-    if (self.stamina > self.attackCost) then
+--    if (self.stamina > self.attackCost) then
         self.co.regen = nil
         self.co.drift = nil
     
         self.attackCharge = 0
-        self.stamina -= self.attackCost
+--        self.stamina -= self.attackCost
         self.attacking = true
         coroutineCreate(self.co, "charge", chargeAttack, self)
-    end
+ --   end
 end
 
 function Hero:releaseAttack(target)
@@ -200,14 +200,14 @@ function Hero:releaseAttack(target)
 end
 
 function Hero:parry()
-    if (self.stamina > self.parryCost) then
+--    if (self.stamina > self.parryCost) then
         self.stamina -= self.parryCost
         self.co.charge = nil
         self.co.regen = nil
         self.co.drift = nil
         coroutineCreate(self.co, "parry", parryTiming, self)
         SoundManager:playSound(SoundManager.kSoundGuardHold)
-    end
+--    end
 end
 
 function Hero:parryHitAnim()
@@ -226,25 +226,25 @@ function Hero:moveByCrank(crankProd)
 -- hero changes sectors
     if (prod ~= self.sector) then
 -- hero does not have sufficent stamina
-        if self.stamina < self.moveCost then
-            crankProd = (self.sector - 1) * sectorAngle
-            if prod == 1 and self.sector == 6 then
-                crankProd += sectorAngle/2
-            elseif prod == 6 and self.sector == 1 then
-                crankProd -= sectorAngle/2
-            elseif prod < self.sector then
-                crankProd -= sectorAngle/2
-            elseif prod > self.sector then
-                crankProd += sectorAngle/2
-            end
-            prod = self.sector
+        -- if self.stamina < self.moveCost then
+        --     crankProd = (self.sector - 1) * sectorAngle
+        --     if prod == 1 and self.sector == 6 then
+        --         crankProd += sectorAngle/2
+        --     elseif prod == 6 and self.sector == 1 then
+        --         crankProd -= sectorAngle/2
+        --     elseif prod < self.sector then
+        --         crankProd -= sectorAngle/2
+        --     elseif prod > self.sector then
+        --         crankProd += sectorAngle/2
+        --     end
+        --     prod = self.sector
 -- hero has sufficient stamina
-        else
-            self.stamina -= self.moveCost
+--        else
+--            self.stamina -= self.moveCost
             self.co.regen = nil
             self:spriteAngle(prod)
             SoundManager:playSound(SoundManager.kSoundDodgeRoll)
-        end
+--        end
     end
 -- calculate hero's position on circumference
     local _x = self.dist * math.cos((crankProd-90)*3.14159/180) + 265

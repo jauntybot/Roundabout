@@ -25,7 +25,7 @@ end
 
 
 local function prodDrift(ring)
-    for d=1,hero.driftDelay do
+    for d=1,ring.hero.driftDelay do
         coroutine.yield()
     end
 
@@ -37,9 +37,9 @@ local function prodDrift(ring)
         from = ring.crankProd
     end
 
-    local dest = (hero.sector - 1) * sectorAngle
+    local dest = (ring.hero.sector - 1) * sectorAngle
 
-    local t = math.abs(from - dest) / hero.driftSpeed
+    local t = math.abs(from - dest) / ring.hero.driftSpeed
     for f=1,t do
     
         ring.crankProd = from+f/t*(dest - from)
@@ -75,7 +75,7 @@ function BattleRing:init(gameManager)
     -- crank input
         cranked = function(change, acceleratedChange)
     -- apply crank delta to stored crank product var at a ratio of 180 to 1 slice
-            self.crankProd += change/(self.divisions)
+            self.crankProd += change/(self.divisions*2)
     -- wrap our product inside the bounds of 0-360
             if self.crankProd > 360 then
                 self.crankProd -= 360
@@ -122,7 +122,7 @@ function BattleRing:monsterSlain()
 end
 
 function BattleRing:endBattle()
-    playdate.inputHandlers.pop()
+    --playdate.inputHandlers.pop()
 
 end
 
