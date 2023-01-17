@@ -3,10 +3,12 @@ import "CoreLibs/graphics"
 import "CoreLibs/timer"
 import "CoreLibs/ui"
 import "animatedimage"
-import "spectacle"
 import "battleRing"
 import "soundManager"
 import "gameManager"
+import "spectacle"
+spec = Spectacle({font = "fonts/font-rains-1x", line_height = 1.0, lines = 2, background=playdate.graphics.kColorWhite})
+
 
 local gfx <const> = playdate.graphics
 local timer <const> = playdate.timer
@@ -18,7 +20,7 @@ local battleScene = {
 }
 
 local gameManager = GameManager()
-local battleRing = BattleRing()
+
 
 
 local function setup()
@@ -36,15 +38,13 @@ setup()
 
 function playdate.update()
 
-    battleRing:update()
-    gameManager:update()
+
+
 
 -- draw all sprites; clean into loop w/ classes
     gfx.clear()
 
-    battleRing:draw()
-    battleRing:drawUI()
-
+    gameManager:update()
 
 -- Display crank alert if crank is docked   
     if playdate.isCrankDocked() then

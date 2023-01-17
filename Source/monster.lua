@@ -13,7 +13,15 @@ local function coroutineRun(parent, co)
     else parent[co]=nil end
 end
 
-class("Monster").extends()
+local function entranceAnim(monster, delay)
+    for d=1,delay do coroutine.yield() end
+    local from = monster.pos.y
+    local to = 120
+    for d=1,monster.entranceDuration do
+        monster.pos.y = from+d/monster.entranceDuration*(to - from)
+        coroutine.yield()
+    end
+end
 
 local function attack(monster, sequence, hero)
     for b=1, #sequence do
@@ -47,27 +55,46 @@ local function attack(monster, sequence, hero)
             end
         end
         for k,sect in ipairs(vulnSectors) do
+            sect.img:reset()
             sect.img:setPaused(true)
-            monster.vulnerableSectors = {}
         end
+        monster.vulnerableSectors = {}
     end
 end
 
 local function attackPattern(monster, hero)
-    local sequence = {{attacking = {2, 3}, vulnerable = {1, 4}}, {attacking = {4, 5}, vulnerable = {3, 6}}, {attacking = {6, 1}, vulnerable = {5, 2}}, {}}
-    for i=1, 20 do
+
+    for i=1, 50 do
+        local sequence = monster.attackPattern[math.random(#monster.attackPattern)]
         coroutineCreate(monster.co, "attack", attack, monster, sequence, hero)
         for d=1, monster.patternDelay * #sequence do coroutine.yield() end
     end
 end
 
+local function damageFrames(img)
+    local delay = 6
+    for i=1,2 do
+        img:setInverted(true)
+        for d=1,delay do coroutine.yield() end
+        img:setInverted(false)
+        for d=1,delay do coroutine.yield() end
+    end
+end
 
-function Monster:init()
+
+
+class("Monster").extends()
+
+function Monster:init(battleRing)
 
 -- variables
+    self.battleRing = battleRing
+
     self.sprite = {
-        img = nil
+        img = gfx.image.new("images/monster.png")
     }
+    assert(self.sprite.img)
+    self.pos = {x=265,y=-32}
     self.maxHP = 100
     self.hp = 100
     self.attacks = {
@@ -88,16 +115,21 @@ function Monster:init()
     }
     self.vulnerableSectors = {}
     self.patternDelay = 60
+    self.attackPattern = {
+        {{attacking = {2, 3}, vulnerable = {1, 4}}, {attacking = {4, 5}, vulnerable = {3, 6}}, {attacking = {6, 1}, vulnerable = {5, 2}}, {}},
+        {{attacking = {3,4}}, {attacking = {4,5}}, {attacking = {5,6}}, {attacking = {6,1}}, {attacking = {1,2}}, {vulnerable = {2}},{vulnerable ={2}}, {}},
+        {{attacking = {2,1}}, {attacking = {1,6}}, {attacking = {6,5}}, {attacking = {5,4}}, {attacking = {4,3}}, {vulnerable = {3}}, {vulnerable ={3}}, {}},
+        {{attacking = {1, 3, 5}, vulnerable = {6}}, {attacking = {2, 4, 6}, vulnerable = {1}}, {attacking = {1, 3, 5}, vulnerable = {2}}, {attacking = {2, 4, 6}, vulnerable = {3}}, {attacking = {1, 3, 5}, vulnerable = {4}}, {attacking = {2, 4, 6}, vulnerable = {5}}, {}}
+    }
     self.co = {
         attackPattern = nil,
         attack = nil,
-        damaged = nil
+        damaged = nil,
+        entrance = nil
     }
     self.dmg = 10
 
--- initialization
-    self.sprite.img = gfx.image.new("images/monster.png")
-    assert(self.sprite.img)
+    self.entranceDuration = 25
 
     self.attacks[1].img = AnimatedImage.new("Images/attackSouth.gif", {delay = 100, loop = false})
     assert(self.attacks[1])
@@ -122,18 +154,17 @@ function Monster:init()
     end
 end
 
-local function damageFrames(img)
-    local delay = 6
-    for i=1,2 do
-        img:setInverted(true)
-        for d=1,delay do coroutine.yield() end
-        img:setInverted(false)
-        for d=1,delay do coroutine.yield() end
-    end
+function Monster:entrance(delay)
+    coroutineCreate(self.co, 'entrance', entranceAnim, self, delay)
 end
 
 function Monster:startAttacking(hero)
     coroutineCreate(self.co, "attackPattern", attackPattern, self, hero)
+end
+
+function Monster:slain()
+    for i=1,#self.co do self.co[i] = nil end
+    for k,a in ipairs(self.attacks) do a.img:setFrame(#a.img.image_table + 1) end
 end
 
 function Monster:takeDmg(dmg, sector)
@@ -141,26 +172,24 @@ function Monster:takeDmg(dmg, sector)
     local dmgScale = 0.5
     if #self.vulnerableSectors >= 1 then
         for i=1, #self.vulnerableSectors do
-            if sector == self.vulnerableSectors[i] then
-                SoundManager:playSound(SoundManager.kSoundCriticalHit)
-                dmgScale = 1.5
-                break
-            else
-                SoundManager:playSound(SoundManager.kSoundIneffectiveHit)
-            end
+            if sector == self.vulnerableSectors[i] then dmgScale = 1.5 break end
         end
-    else
-        print ("no sectors")
-        SoundManager:playSound(SoundManager.kSoundIneffectiveHit)
     end
-
+    
     dmg *= dmgScale
     self.hp -= dmg
-    spec:print(dmg.." dmg")
-    if dmgScale > 1 then spec:print("critical hit!") end
 
-    coroutineCreate(self.co, "damaged", damageFrames, self.sprite.img)
+    spec:print(dmg.." dmg")
+    if dmgScale > 1 then spec:print("critical hit!") SoundManager:playSound(SoundManager.kSoundCriticalHit) else SoundManager:playSound(SoundManager.kSoundIneffectiveHit) end
+
+    if self.hp <= 0 then
+        self.battleRing:monsterSlain()
+        self:slain()
+    else
+        coroutineCreate(self.co, "damaged", damageFrames, self.sprite.img)
+    end
 end
+
 
 function Monster:drawAttacks()
     for i, v in ipairs(self.attacks) do
@@ -180,4 +209,5 @@ function Monster:update()
     if (self.co.attackPattern~=nil) then coroutineRun(self.co, "attackPattern") end
     if (self.co.attack~=nil) then coroutineRun(self.co, "attack") end
     if (self.co.damaged~=nil) then coroutineRun(self.co, "damaged") end
+    if (self.co.entrance~=nil) then coroutineRun(self.co, 'entrance') end
 end

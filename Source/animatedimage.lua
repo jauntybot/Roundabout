@@ -85,7 +85,6 @@ function AnimatedImage:loopFinished()
 end
 
 function AnimatedImage:setTableInverted(flag)
-	print(self.image_table:getLength())
 	for i=1, self.image_table:getLength() do
 		local img = self.image_table:getImage(i):setInverted(flag)
 	end

@@ -11,6 +11,16 @@ local function coroutineRun(parent, co)
     else parent[co]=nil end
 end
 
+local function entranceAnim(hero) 
+    local to = hero.moveDist
+    local from = hero.dist
+    for d=1,hero.entranceDuration do
+        hero.dist = from+d/hero.entranceDuration*(to - from)
+        coroutine.yield()
+    end
+
+end
+
 local function chargeAttack(hero)
     local to = hero.attackDist
     local from = hero.dist
@@ -56,7 +66,7 @@ local function parryTiming(hero)
     for d=1, hero.parryDelay do coroutine.yield() end
     if hero.smearSprite.img:getPaused() then
         hero.smearSprite.img:setPaused(false)
-        hero.smearSprite.img:setFrame(#hero.smearSprite.img.image_table)
+        hero.smearSprite.img:setFrame(#hero.smearSprite.img.image_table + 1)
     end
     hero.parrying = false
 end
@@ -82,8 +92,6 @@ function Hero:spriteAngle(slice)
 end
 
 function Hero:init()
-    self.battleRing = battleRing
-
     self.sprite = {
         img = nil,
         loops = {
@@ -108,7 +116,7 @@ function Hero:init()
     }
     self.pos = {x=265,y=170}
     self.sector = 4
-    self.dist = 96
+    self.dist = 160
     self.moveDist = 96
 
     self.attacking = true
@@ -139,12 +147,15 @@ function Hero:init()
     self.parrying = false
     self.parryDelay = 15
 
+    self.entranceDuration = 50
+
     self.co = {
         attack = nil,
         damaged = nil,
         charge = nil,
         regen = nil,
-        parry = nil
+        parry = nil,
+        entrance = nil
     }
 
     self.sprite.img = AnimatedImage.new("Images/sprite-PC.gif", {delay = 100, loop = true})
@@ -153,6 +164,11 @@ function Hero:init()
     assert(self.smearSprite.img)
 
     self:spriteAngle(4)
+end
+
+function Hero:entrance()
+    coroutineCreate(self.co, 'entrance', entranceAnim, self)
+
 end
 
 function Hero:takeDmg(dmg)
@@ -250,6 +266,7 @@ function Hero:update()
     if (self.co.regen~=nil) then coroutineRun(self.co, "regen") end
     if (self.co.charge~=nil) then coroutineRun(self.co, "charge") end
     if (self.co.parry~=nil) then coroutineRun(self.co, "parry") end
+    if (self.co.entrance~=nil) then coroutineRun(self.co, 'entrance') end
 end
 
 function Hero:draw()

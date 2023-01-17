@@ -1,16 +1,11 @@
-
-import "CoreLibs/graphics"
 import "hero"
 import "monster"
-import "spectacle"
-spec = Spectacle({font = "fonts/font-rains-1x", line_height = 1.0, lines = 2, background=playdate.graphics.kColorWhite})
 
-Hero = Hero()
-Monster = Monster()
 
-local function coroutineCreate(parent, co, f, params)
+
+local function coroutineCreate(parent, co, f, p1, p2, p3, p4)
     parent[co] = coroutine.create(f)
-    coroutine.resume(parent[co], params)
+    coroutine.resume(parent[co], p1, p2, p3, p4)
 end
 
 local function coroutineRun(parent, co, params)
@@ -19,13 +14,18 @@ local function coroutineRun(parent, co, params)
     else parent[co]=nil end
 end
 
+local function battleStartCutscene(ring, hero, monster)
+    hero:entrance()
+    monster:entrance(hero.entranceDuration*2)
+    for d=1, hero.entranceDuration*2 + monster.entranceDuration * 2 do coroutine.yield() end
+    -- stack our inputHandler for the battle sequence
+    ring:toggleInputHandler(true)
+    monster:startAttacking(hero)
+end
 
-
-class('BattleRing').extends()
 
 local function prodDrift(ring)
-    for d=1,Hero.driftDelay do
---        print("coroutineRunning")
+    for d=1,hero.driftDelay do
         coroutine.yield()
     end
 
@@ -37,9 +37,9 @@ local function prodDrift(ring)
         from = ring.crankProd
     end
 
-    local dest = (Hero.sector - 1) * sectorAngle
+    local dest = (hero.sector - 1) * sectorAngle
 
-    local t = math.abs(from - dest) / Hero.driftSpeed
+    local t = math.abs(from - dest) / hero.driftSpeed
     for f=1,t do
     
         ring.crankProd = from+f/t*(dest - from)
@@ -47,22 +47,28 @@ local function prodDrift(ring)
     end
 end
 
-function BattleRing:init()
-    spec:watchFPS()
-    spec:watchMemory()
-    spec:watch(Hero, "hp")
-    spec:watch(Hero, "stamina")
-    spec:watch(Monster, "hp", "monster HP")
-    spec:watch(Hero, "parrying")
+class('BattleRing').extends()
+
+function BattleRing:init(gameManager)
+
+    self.gameManager = gameManager
 
     self.center = {x=265,y=120}
     self.divisions = 6
     self.divisionsImage = nil
-    self.bgImage = nil
     self.crankProd = 180
     self.co = {
-        drift = nil
+        drift = nil,
+        battleStart = nil
     }
+    self.hero = Hero()
+    self.monster = Monster(self)
+
+    spec:watchFPS()
+    spec:watchMemory()
+    spec:watch(self.hero, "hp")
+    spec:watch(self.hero, "stamina")
+    spec:watch(self.monster, "hp", "monster HP")
 
 -- battle control scheme that is pushed onto playdate's battleHandler stack when in battle
     self.battleInputHandler = {
@@ -82,15 +88,15 @@ function BattleRing:init()
         end,
     
         upButtonDown = function()
-            Hero:chargeAttack()
+            self.hero:chargeAttack()
         end,
     
         upButtonUp = function()
-            Hero:releaseAttack(Monster)
+            self.hero:releaseAttack(self.monster)
         end,
 
         downButtonDown = function()
-            Hero:parry()
+            self.hero:parry()
         end
     
     }
@@ -98,32 +104,45 @@ function BattleRing:init()
 -- path based image reference
     self.divisionsImage = playdate.graphics.image.new("Images/divisions.png")
     assert(self.divisionsImage)
-    self.bgImage = AnimatedImage.new("Images/BG-1-dither.gif", {delay = 100, loop = true})
-    assert(self.bgImage)
+end
 
--- stack our inputHandler for the battle sequence
+function BattleRing:toggleInputHandler()
     playdate.inputHandlers.push(self.battleInputHandler)
+end
 
-    Monster:startAttacking(Hero)
+function BattleRing:startBattle()
+    coroutineCreate(self.co, 'battleStart', battleStartCutscene, self, self.hero, self.monster)
+    --self:toggleInputHandler(true)
+end
+
+function BattleRing:monsterSlain()
+    print('monster slain!')
+    self:endBattle()
+    self.gameManager:displayWinState()
+end
+
+function BattleRing:endBattle()
+    playdate.inputHandlers.pop()
+
 end
 
 
 function BattleRing:update()
 
     if self.co.drift ~= nil then coroutineRun(self.co, "drift") end
+    if self.co.battleStart ~= nil then coroutineRun(self.co, "battleStart") end
 
-    self.crankProd = Hero:moveByCrank(self.crankProd)
-    Hero:update()
-    Monster:update()
+    self.crankProd = self.hero:moveByCrank(self.crankProd)
+    self.hero:update()
+    self.monster:update()
 
 end
 
 function BattleRing:draw()
-    Monster:drawAttacks()
+    self.monster:drawAttacks()
     self.divisionsImage:drawCentered(self.center.x, self.center.y)
-    Monster.sprite.img:drawCentered(265, 120)
-    Hero:draw()
-    self.bgImage:drawCentered(200, 120)
+    self.monster.sprite.img:drawCentered(self.monster.pos.x, self.monster.pos.y)
+    self.hero:draw()
 end
 
 function BattleRing:drawUI()
