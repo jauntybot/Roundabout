@@ -42,7 +42,7 @@ local function attack(monster, sequence, hero)
             end
         end
 
-        for d=1, monster.patternDelay do coroutine.yield() end
+        for d=1, monster.patternAnimDuration do coroutine.yield() end
 
         for k,sect in ipairs(dmgdSectors) do
             if (hero.sector == sect) then
@@ -67,7 +67,7 @@ local function attackPattern(monster, hero)
     for i=1, 50 do
         local sequence = monster.attackPattern[math.random(#monster.attackPattern)]
         coroutineCreate(monster.co, "attack", attack, monster, sequence, hero)
-        for d=1, monster.patternDelay * #sequence do coroutine.yield() end
+        for d=1, monster.patternAnimDuration * #sequence do coroutine.yield() end
     end
 end
 
@@ -114,13 +114,14 @@ function Monster:init(battleRing)
         {img = nil, pos = {x=0,y=0}}
     }
     self.vulnerableSectors = {}
-    self.patternDelay = 30
+    self.patternDelay = 15
     self.attackPattern = {
-        {{attacking = {2, 3}, vulnerable = {1, 4}}, {attacking = {4, 5}, vulnerable = {3, 6}}, {attacking = {6, 1}, vulnerable = {5, 2}}, {}},
-        {{attacking = {3,4}}, {attacking = {4,5}}, {attacking = {5,6}}, {attacking = {6,1}}, {attacking = {1,2}}, {vulnerable = {2}},{vulnerable ={2}}, {}},
-        {{attacking = {2,1}}, {attacking = {1,6}}, {attacking = {6,5}}, {attacking = {5,4}}, {attacking = {4,3}}, {vulnerable = {3}}, {vulnerable ={3}}, {}},
-        {{attacking = {1, 3, 5}, vulnerable = {6}}, {attacking = {2, 4, 6}, vulnerable = {1}}, {attacking = {1, 3, 5}, vulnerable = {2}}, {attacking = {2, 4, 6}, vulnerable = {3}}, {attacking = {1, 3, 5}, vulnerable = {4}}, {attacking = {2, 4, 6}, vulnerable = {5}}, {}}
+        {{attacking = {2, 3}, vulnerable = {1, 4}}, {attacking = {4, 5}, vulnerable = {3, 6}}, {attacking = {6, 1}, vulnerable = {5, 2}}, {}, {}},
+        {{attacking = {3,4}}, {attacking = {4,5}}, {attacking = {5,6}}, {attacking = {6,1}}, {attacking = {1,2}}, {vulnerable = {2}},{vulnerable ={2}}, {}, {}},
+        {{attacking = {2,1}}, {attacking = {1,6}}, {attacking = {6,5}}, {attacking = {5,4}}, {attacking = {4,3}}, {vulnerable = {3}}, {vulnerable ={3}}, {}, {}},
+        {{attacking = {1, 3, 5}, vulnerable = {6}}, {attacking = {2, 4, 6}, vulnerable = {1}}, {attacking = {1, 3, 5}, vulnerable = {2}}, {attacking = {2, 4, 6}, vulnerable = {3}}, {attacking = {1, 3, 5}, vulnerable = {4}}, {attacking = {2, 4, 6}, vulnerable = {5}}, {}, {}}
     }
+    self.patternAnimDuration = 30
     self.co = {
         attackPattern = nil,
         attack = nil,
@@ -163,8 +164,10 @@ function Monster:startAttacking(hero)
 end
 
 function Monster:slain()
-    for i=1,#self.co do self.co[i] = nil end
+    print (#self.co)
+    for i=1,#self.co do self.co[i] = nil print ('self.co[i]') end
     for k,a in ipairs(self.attacks) do a.img:setFrame(#a.img.image_table + 1) end
+    print('in monster slain!')
 end
 
 function Monster:takeDmg(dmg, sector)

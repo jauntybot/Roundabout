@@ -75,7 +75,7 @@ function BattleRing:init(gameManager)
     -- crank input
         cranked = function(change, acceleratedChange)
     -- apply crank delta to stored crank product var at a ratio of 180 to 1 slice
-            self.crankProd += change/(self.divisions*2)
+            self.crankProd += change/(self.divisions)
     -- wrap our product inside the bounds of 0-360
             if self.crankProd > 360 then
                 self.crankProd -= 360
@@ -112,11 +112,11 @@ end
 
 function BattleRing:startBattle()
     coroutineCreate(self.co, 'battleStart', battleStartCutscene, self, self.hero, self.monster)
+    SoundManager:playBackgroundMusic()
     --self:toggleInputHandler(true)
 end
 
 function BattleRing:monsterSlain()
-    print('monster slain!')
     self:endBattle()
     self.gameManager:displayWinState()
 end
