@@ -119,15 +119,10 @@ function BattleRing:startBattle()
     --self:toggleInputHandler(true)
 end
 
-function BattleRing:monsterSlain()
-    self.gameManager:displayWinState()
-    self:endBattle()
-   
-end
-
-function BattleRing:endBattle()
+function BattleRing:endBattle(win)
+    if win then self.gameManager:displayWinState()
+    else self.gameManager:displayLoseState() end
     playdate.inputHandlers.pop()
-
 end
 
 

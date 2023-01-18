@@ -178,7 +178,7 @@ function Monster:takeDmg(dmg, sector)
     if dmgScale > 1 then spec:print("critical hit!") SoundManager:playSound(SoundManager.kSoundCriticalHit) else SoundManager:playSound(SoundManager.kSoundIneffectiveHit) end
 
     if self.hp <= 0 then
-        self.battleRing:monsterSlain()
+        self.battleRing:endBattle(true)
         self:slain()
     else
         coroutineCreate(self.co, "damaged", damageFrames, self.sprite.img)

@@ -3,7 +3,7 @@ import "CoreLibs/UI"
 import "Spectacle"
 import "battleRing"
 
-gmSpec = Spectacle({font = "fonts/font-rains-1x", line_height = 1.0, lines = 2, background=playdate.graphics.kColorWhite})
+gmSpec = Spectacle({font = "Fonts/FenwickWoodtype", line_height = 1.2, lines = 2, background=playdate.graphics.kColorWhite})
 
 class ('GameManager').extends()
 
@@ -38,6 +38,7 @@ end
 function GameManager:displayLoseState()
     gmSpec:clear()
     gmSpec:print("Hero is slain.")
+    self.monster.co = {}
     self.state = 'heroLose'
 end
 

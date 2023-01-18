@@ -7,7 +7,7 @@ import "battleRing"
 import "soundManager"
 import "gameManager"
 import "spectacle"
-spec = Spectacle({font = "fonts/font-rains-1x", line_height = 1.0, lines = 2, background=playdate.graphics.kColorWhite})
+spec = Spectacle({font = "Fonts/FenwickWoodtype", line_height = 1.2, lines = 2, background=playdate.graphics.kColorWhite})
 
 
 local gfx <const> = playdate.graphics

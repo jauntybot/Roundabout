@@ -119,7 +119,7 @@ function Hero:init(battleRing)
             {frames = {6, 11}, flip = gfx.kImageFlippedY, topSort = true},
         }
     }
-    self.pos = {x=265,y=170}
+    self.pos = {x=self.battleRing.center.x,y=170}
     self.sector = 4
     self.dist = 160
     self.moveDist = 96
@@ -138,7 +138,7 @@ function Hero:init(battleRing)
     self.driftSpeed = 2
 
     self.maxHP = 100
-    self.hp = 100
+    self.hp = 20
 
     self.maxStamina = 100
     self.stamina = 100
@@ -179,9 +179,16 @@ function Hero:exit()
     coroutineCreate(self.co, 'exit', exitAnim, self)
 end
 
+function Hero:slain()
+end
+
 function Hero:takeDmg(dmg)
     self.hp -= dmg
     SoundManager:playSound(SoundManager.kSoundHeroDmg)
+    if self.hp <= 0 then
+        self.battleRing:endBattle(false)
+        self:slain()
+    end
     coroutineCreate(self.co, "damaged", damageFrames, self.sprite.img)
 end
 
@@ -233,30 +240,13 @@ function Hero:moveByCrank(crankProd)
     if prod > 6 then prod = 1 end
 -- hero changes sectors
     if (prod ~= self.sector) then
--- hero does not have sufficent stamina
-        -- if self.stamina < self.moveCost then
-        --     crankProd = (self.sector - 1) * sectorAngle
-        --     if prod == 1 and self.sector == 6 then
-        --         crankProd += sectorAngle/2
-        --     elseif prod == 6 and self.sector == 1 then
-        --         crankProd -= sectorAngle/2
-        --     elseif prod < self.sector then
-        --         crankProd -= sectorAngle/2
-        --     elseif prod > self.sector then
-        --         crankProd += sectorAngle/2
-        --     end
-        --     prod = self.sector
--- hero has sufficient stamina
---        else
---            self.stamina -= self.moveCost
-            self.co.regen = nil
-            self:spriteAngle(prod)
-            SoundManager:playSound(SoundManager.kSoundDodgeRoll)
---        end
+        self.co.regen = nil
+        self:spriteAngle(prod)
+        SoundManager:playSound(SoundManager.kSoundDodgeRoll)
     end
 -- calculate hero's position on circumference
-    local _x = self.dist * math.cos((crankProd-90)*3.14159/180) + 265
-    local _y = self.dist * math.sin((crankProd-90)*3.14159/180) + 120
+    local _x = self.dist * math.cos((crankProd-90)*3.14159/180) + self.battleRing.center.x
+    local _y = self.dist * math.sin((crankProd-90)*3.14159/180) + self.battleRing.center.y
 
     self.sector = prod
     self.pos = {x=_x, y=_y}
