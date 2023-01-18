@@ -18,6 +18,9 @@ local function entranceAnim(hero)
         hero.dist = from+d/hero.entranceDuration*(to - from)
         coroutine.yield()
     end
+end
+
+local function exitAnim(hero)
 
 end
 
@@ -91,7 +94,9 @@ function Hero:spriteAngle(slice)
     self.smearSprite.img:setLastFrame(self.smearSprite.loops[slice].frames[2])
 end
 
-function Hero:init()
+function Hero:init(battleRing)
+    self.battleRing = battleRing
+
     self.sprite = {
         img = nil,
         loops = {
@@ -125,7 +130,7 @@ function Hero:init()
     self.attackDmg = 10
 
     self.chargeDist = 32
-    self.chargeRate = 0.25
+    self.chargeRate = 0.5
     self.maxCharge = 10
     self.attackCharge = 0
 
@@ -168,7 +173,10 @@ end
 
 function Hero:entrance()
     coroutineCreate(self.co, 'entrance', entranceAnim, self)
+end
 
+function Hero:exit()
+    coroutineCreate(self.co, 'exit', exitAnim, self)
 end
 
 function Hero:takeDmg(dmg)

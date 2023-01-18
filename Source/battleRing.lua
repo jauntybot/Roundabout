@@ -61,7 +61,7 @@ function BattleRing:init(gameManager)
         drift = nil,
         battleStart = nil
     }
-    self.hero = Hero()
+    self.hero = Hero(self)
     self.monster = Monster(self)
 
     spec:watchFPS()
@@ -69,6 +69,7 @@ function BattleRing:init(gameManager)
     spec:watch(self.hero, "hp")
     spec:watch(self.hero, "stamina")
     spec:watch(self.monster, "hp", "monster HP")
+    spec:watch(self, "crankProd")
 
 -- battle control scheme that is pushed onto playdate's battleHandler stack when in battle
     self.battleInputHandler = {
@@ -104,6 +105,8 @@ function BattleRing:init(gameManager)
 -- path based image reference
     self.divisionsImage = playdate.graphics.image.new("Images/divisions.png")
     assert(self.divisionsImage)
+    self.bgImage = AnimatedImage.new("Images/BG-1-dither.gif", {delay = 100, loop = true})
+    assert(self.bgImage)
 end
 
 function BattleRing:toggleInputHandler()
@@ -117,12 +120,13 @@ function BattleRing:startBattle()
 end
 
 function BattleRing:monsterSlain()
-    self:endBattle()
     self.gameManager:displayWinState()
+    self:endBattle()
+   
 end
 
 function BattleRing:endBattle()
-    --playdate.inputHandlers.pop()
+    playdate.inputHandlers.pop()
 
 end
 
@@ -143,8 +147,6 @@ function BattleRing:draw()
     self.divisionsImage:drawCentered(self.center.x, self.center.y)
     self.monster.sprite.img:drawCentered(self.monster.pos.x, self.monster.pos.y)
     self.hero:draw()
-end
-
-function BattleRing:drawUI()
+    self.bgImage:drawCentered(200, 120)
     spec:draw(2,2)
 end
