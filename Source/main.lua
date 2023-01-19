@@ -7,11 +7,13 @@ import "battleRing"
 import "soundManager"
 import "gameManager"
 import "spectacle"
+import "coroutineShortcuts"
 spec = Spectacle({font = "Fonts/FenwickWoodtype", line_height = 1.2, lines = 2, background=playdate.graphics.kColorWhite})
 
 
 local gfx <const> = playdate.graphics
 local timer <const> = playdate.timer
+
 
 local gameManager = GameManager()
 

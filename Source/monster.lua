@@ -1,18 +1,6 @@
 import "CoreLibs/graphics"
 local gfx <const> = playdate.graphics
 
-
-local function coroutineCreate(parent, co, f, p1, p2, p3, p4)
-    parent[co] = coroutine.create(f)
-    coroutine.resume(parent[co], p1, p2, p3, p4)
-end
-
-local function coroutineRun(co)
-    if (co and coroutine.status(co)~='dead') then
-        coroutine.resume(co)
-    else co=nil end
-end
-
 local function entranceAnim(monster, delay)
     for d=1,delay do coroutine.yield() end
     local from = monster.pos.y
@@ -26,7 +14,6 @@ end
 local function attack(monster, sequence, hero)
     for b=1, #sequence do
         local dmgdSectors = {}
-        local vulnSectors = {}
 
         if sequence[b].attacking ~= nil then
             for s=1, #sequence[b].attacking do
@@ -36,8 +23,7 @@ local function attack(monster, sequence, hero)
         end
         if sequence[b].vulnerable ~= nil then
             for s=1, #sequence[b].vulnerable do
-                monster.vulnerability[sequence[b].vulnerable[s]].img:setPaused(false)
-                vulnSectors[#vulnSectors+1] = monster.vulnerability[sequence[b].vulnerable[s]]
+                monster.vulnerability[sequence[b].vulnerable[s]].img:setPaused(false)         
                 monster.vulnerableSectors[#monster.vulnerableSectors+1] = sequence[b].vulnerable[s]
             end
         end
@@ -50,11 +36,11 @@ local function attack(monster, sequence, hero)
                     hero:takeDmg(monster.dmg)
                 else
                     monster:takeDmg(hero.attackDmg, hero.sector)
-                    hero:parryHitAnim()
+                    hero:parryHit()
                 end
             end
         end
-        for k,sect in ipairs(vulnSectors) do
+        for k,sect in ipairs(monster.vulnerability) do
             sect.img:reset()
             sect.img:setPaused(true)
         end
@@ -66,7 +52,7 @@ local function attackPattern(monster, hero)
 
     for i=1, 50 do
         local sequence = monster.attackPattern[math.random(#monster.attackPattern)]
-        coroutineCreate(monster.co, "attack", attack, monster, sequence, hero)
+        CoCreate(monster.co, "attack", attack, monster, sequence, hero)
         for d=1, monster.patternAnimDuration * #sequence do coroutine.yield() end
     end
 end
@@ -96,8 +82,9 @@ function Monster:init(battleRing)
     assert(self.sprite.img)
     self.pos = {x=265,y=-32}
     self.maxHP = 100
-    self.hp = 1
-        self.dmg = 10
+    self.hp = 100
+
+    self.dmg = 10
     self.attacks = {
         {img = AnimatedImage.new("Images/attackSouth.gif", {delay = 50, loop = false}), flip = gfx.kImageFlippedY}, --n
         {img = AnimatedImage.new("Images/attackSouthWest.gif", {delay = 50, loop = false}), flip = gfx.kImageFlippedXY}, --ne
@@ -149,17 +136,22 @@ function Monster:init(battleRing)
 end
 
 function Monster:entrance(delay)
-    coroutineCreate(self.co, 'entrance', entranceAnim, self, delay)
+    CoCreate(self.co, 'entrance', entranceAnim, self, delay)
 end
 
 function Monster:startAttacking(hero)
-    coroutineCreate(self.co, "attackPattern", attackPattern, self, hero)
+    CoCreate(self.co, "attackPattern", attackPattern, self, hero)
 end
 
-function Monster:slain()
-    self.co = {}
-    for k,a in ipairs(self.attacks) do print(k) a.img:setFrame(#a.img.image_table + 1) end
-    print('in monster slain!')
+function Monster:stopAttacking()
+    for k,a in pairs(self.attacks) do a.img:setFrame(a.img.image_table:getLength() + 1) end
+    for k,sect in ipairs(self.vulnerability) do
+        sect.img:reset()
+        sect.img:setPaused(true)
+    end
+    self.vulnerableSectors = {}
+    self.co.attackPattern = nil
+    self.co.attack = nil
 end
 
 function Monster:takeDmg(dmg, sector)
@@ -178,10 +170,11 @@ function Monster:takeDmg(dmg, sector)
     if dmgScale > 1 then spec:print("critical hit!") SoundManager:playSound(SoundManager.kSoundCriticalHit) else SoundManager:playSound(SoundManager.kSoundIneffectiveHit) end
 
     if self.hp <= 0 then
+        self.hp = 0
         self.battleRing:endBattle(true)
-        self:slain()
+        self:stopAttacking()
     else
-        coroutineCreate(self.co, "damaged", damageFrames, self.sprite.img)
+        CoCreate(self.co, "damaged", damageFrames, self.sprite.img)
     end
 end
 
@@ -201,7 +194,7 @@ function Monster:drawAttacks()
 end
 
 function Monster:update()
-    for k,co in pairs(self.co) do
-        if co~=nil then coroutineRun(co) end
+    for co,f in pairs(self.co) do
+        if co~=nil then CoRun(self.co, co) end
     end
 end
