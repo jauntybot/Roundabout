@@ -19,32 +19,8 @@ local function battleStartCutscene(ring, hero, monster)
     monster:entrance(hero.entranceDuration*2)
     for d=1, hero.entranceDuration*2 + monster.entranceDuration * 2 do coroutine.yield() end
     -- stack our inputHandler for the battle sequence
-    ring:toggleInputHandler(true)
+    playdate.inputHandlers.push(hero.battleInputHandler)
     monster:startAttacking(hero)
-end
-
-
-local function prodDrift(ring)
-    for d=1,hero.driftDelay do
-        coroutine.yield()
-    end
-
-    local sectorAngle = 360/ring.divisions
-    local from
-    if ring.crankProd > 360/ring.divisions * (ring.divisions - .5) then
-        from = -(360 - ring.crankProd)
-    else
-        from = ring.crankProd
-    end
-
-    local dest = (hero.sector - 1) * sectorAngle
-
-    local t = math.abs(from - dest) / hero.driftSpeed
-    for f=1,t do
-    
-        ring.crankProd = from+f/t*(dest - from)
-        coroutine.yield()
-    end
 end
 
 class('BattleRing').extends()
@@ -55,96 +31,55 @@ function BattleRing:init(gameManager)
 
     self.center = {x=265,y=120}
     self.divisions = 6
-    self.divisionsImage = nil
-    self.crankProd = 180
-    self.co = {
-        drift = nil,
-        battleStart = nil
-    }
-    self.hero = Hero()
-    self.monster = Monster(self)
-
-    spec:watchFPS()
-    spec:watchMemory()
-    spec:watch(self.hero, "hp")
-    spec:watch(self.hero, "stamina")
-    spec:watch(self.monster, "hp", "monster HP")
-
--- battle control scheme that is pushed onto playdate's battleHandler stack when in battle
-    self.battleInputHandler = {
-    -- crank input
-        cranked = function(change, acceleratedChange)
-    -- apply crank delta to stored crank product var at a ratio of 180 to 1 slice
-            self.crankProd += change/(self.divisions)
-    -- wrap our product inside the bounds of 0-360
-            if self.crankProd > 360 then
-                self.crankProd -= 360
-            elseif self.crankProd < 0 then
-                self.crankProd += 360
-            end
-            if (change ~= 0) then
-                coroutineCreate(self.co, "drift", prodDrift, self)
-            end
-        end,
-    
-        upButtonDown = function()
-            self.hero:chargeAttack()
-        end,
-    
-        upButtonUp = function()
-            self.hero:releaseAttack(self.monster)
-        end,
-
-        downButtonDown = function()
-            self.hero:parry()
-        end
-    
-    }
-
--- path based image reference
     self.divisionsImage = playdate.graphics.image.new("Images/divisions.png")
     assert(self.divisionsImage)
-end
+    self.bgImage = AnimatedImage.new("Images/BG-1-dither.gif", {delay = 100, loop = true})
+    assert(self.bgImage)
 
-function BattleRing:toggleInputHandler()
-    playdate.inputHandlers.push(self.battleInputHandler)
+    self.co = {
+        battleStart = nil
+    }
+    self.hero = Hero(self)
+    self.monster = Monster(self)
+    self.state = 'battling'
+
+    spec:clear()
 end
 
 function BattleRing:startBattle()
     coroutineCreate(self.co, 'battleStart', battleStartCutscene, self, self.hero, self.monster)
-    --self:toggleInputHandler(true)
+    SoundManager:playBackgroundMusic()
 end
 
-function BattleRing:monsterSlain()
-    print('monster slain!')
-    self:endBattle()
-    self.gameManager:displayWinState()
-end
-
-function BattleRing:endBattle()
+function BattleRing:endBattle(win)
+    self.state = 'endBattle'
+    spec:clear()
+    spec:print("Press UP to reset.")
     playdate.inputHandlers.pop()
-
+    if win then 
+        self.gameManager:displayWinState()
+        self.hero:exit()
+    else
+        self.gameManager:displayLoseState() 
+        self.monster:stopAttacking()
+    end
 end
 
 
 function BattleRing:update()
 
-    if self.co.drift ~= nil then coroutineRun(self.co, "drift") end
     if self.co.battleStart ~= nil then coroutineRun(self.co, "battleStart") end
 
-    self.crankProd = self.hero:moveByCrank(self.crankProd)
     self.hero:update()
     self.monster:update()
 
 end
 
 function BattleRing:draw()
-    self.monster:drawAttacks()
+    if self.state == 'battling' then self.monster:drawAttacks() end
     self.divisionsImage:drawCentered(self.center.x, self.center.y)
     self.monster.sprite.img:drawCentered(self.monster.pos.x, self.monster.pos.y)
     self.hero:draw()
-end
-
-function BattleRing:drawUI()
+    self.bgImage:drawCentered(200, 120)
     spec:draw(2,2)
 end

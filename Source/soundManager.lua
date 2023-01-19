@@ -30,6 +30,6 @@ end
 
 
 function SoundManager:playBackgroundMusic()
-	local filePlayer = snd.fileplayer.new('sfx/main_theme')
+	local filePlayer = snd.fileplayer.new('Audio/sfx/rippleStar')
 	filePlayer:play(0) -- repeat forever
 end
