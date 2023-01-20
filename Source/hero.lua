@@ -101,20 +101,29 @@ local function parryTiming(hero)
     CoCreate(hero.co, "cooldown", cooldown, hero)
 end
 
-local function hop(hero, counterClockwise)
+local function hop(hero, clockwise)
     hero.co.drift = nil
 
     local from = hero.crankProd
-    local to = hero.crankProd - 10
+    local to = hero.crankProd - 15
+    hero.state = 'hopCounter'
+    if clockwise then 
+        to = hero.crankProd + 15
+        hero.state = 'hopClockwise'
+    end
+    hero.sprite.img:setShouldLoop(false)
+    hero.sprite.img:setFirstFrame(hero.sprite.loops[hero.state][hero.sector].frames[1])
+    hero.sprite.img:setLastFrame(hero.sprite.loops[hero.state][hero.sector].frames[2])
+    hero.sprite.img:reset()
 
-    if counterClockwise then to = hero.crankProd + 10 end
-    hero.state = 'hopping'
-    -- PLAY ANIMATION
     for d=1, hero.hopDuration do
         hero.crankProd = from+d/hero.hopDuration*(to - from)
         coroutine.yield()
     end
     hero.state = 'idle'
+    hero.sprite.img:setShouldLoop(true)
+    hero:spriteAngle(hero.sector)
+    print ('hop finished')
 end
 
 local function damageFrames(img)
@@ -131,12 +140,12 @@ class('Hero').extends()
 
 
 function Hero:spriteAngle(slice)
---    if self.state ~= 'hopping' then
+    if self.state ~= 'hopClockwise' or self.state ~= 'hopCounter' then
         self.sprite.img:setFirstFrame(self.sprite.loops[self.state][slice].frames[1])
         self.sprite.img:setLastFrame(self.sprite.loops[self.state][slice].frames[2])
         self.smearSprite.img:setFirstFrame(self.smearSprite.loops[slice].frames[1])
         self.smearSprite.img:setLastFrame(self.smearSprite.loops[slice].frames[2])
---    end
+    end
 end
 
 function Hero:init(battleRing)
@@ -153,13 +162,21 @@ function Hero:init(battleRing)
                 {frames = {7, 12}, flip = gfx.kImageUnflipped},
                 {frames = {13, 18}, flip = gfx.kImageUnflipped},
             },
-            hopping = {
-                {frames = {19, 24}, flip = gfx.kImageUnflipped},
-                {frames = {13, 18}, flip = gfx.kImageFlippedX},
-                {frames = {7, 12}, flip = gfx.kImageFlippedX},
-                {frames = {1, 6}, flip = gfx.kImageUnflipped},
-                {frames = {7, 12}, flip = gfx.kImageUnflipped},
-                {frames = {13, 18}, flip = gfx.kImageUnflipped},
+            hopClockwise = {
+                {frames = {70, 74}, flip = gfx.kImageFlippedX},
+                {frames = {60, 64}, flip = gfx.kImageFlippedX},
+                {frames = {50, 54}, flip = gfx.kImageFlippedX},
+                {frames = {45, 49}, flip = gfx.kImageUnflipped},
+                {frames = {55, 59}, flip = gfx.kImageUnflipped},
+                {frames = {65, 69}, flip = gfx.kImageUnflipped},
+            },
+            hopCounter = {
+                {frames = {70, 74}, flip = gfx.kImageUnflipped},
+                {frames = {65, 69}, flip = gfx.kImageFlippedX},
+                {frames = {55, 59}, flip = gfx.kImageFlippedX},
+                {frames = {45, 49}, flip = gfx.kImageFlippedX},
+                {frames = {50, 54}, flip = gfx.kImageUnflipped},
+                {frames = {60, 64}, flip = gfx.kImageUnflipped}
             }
         }
     }
@@ -187,7 +204,8 @@ function Hero:init(battleRing)
 
     self.moveSpeed = 1
     self.moveDist = 96
-    self.hopDuration = 10
+    self.hopDuration = 25
+    self.dir = 'clockwise'
 
     self.attackDist = 32
     self.attackSpeed = 20
@@ -337,11 +355,12 @@ function Hero:moveByCrank()
         end
     end
 
-    local counterClockwise = (self.crankProd - 90) % self.battleRing.sliceAngle >= self.battleRing.sliceAngle - 5
-    if ((self.crankProd - 90) %self.battleRing.sliceAngle <= 5 or counterClockwise) and self.co.hop == nil then
-        CoCreate(self.co, "hop", hop, self, counterClockwise)
+-- check if the player is moving between sectors and in which direction
+    local clockwise = (self.crankProd - 90) % self.battleRing.sliceAngle >= self.battleRing.sliceAngle - 5
+    if ((self.crankProd - 90) %self.battleRing.sliceAngle <= 5 or clockwise) and self.co.hop == nil then
+        CoCreate(self.co, "hop", hop, self, clockwise)
 -- hero changes sectors
-    elseif (prod ~= self.sector) then
+    elseif (prod ~= self.sector) and self.co.hop == nil then
         self:addCooldown(self.moveCost)
         self:spriteAngle(prod)
         SoundManager:playSound(SoundManager.kSoundDodgeRoll)
@@ -366,7 +385,9 @@ function Hero:update()
 end
 
 function Hero:draw()
+
     self.sprite.img:drawCentered(self.pos.x, self.pos.y, self.sprite.loops[self.state][self.sector].flip)
+
     if not self.smearSprite.img:loopFinished() or self.smearSprite.img:getPaused() then
         self.smearSprite.img:drawCentered(self.pos.x, self.pos.y, self.smearSprite.loops[self.sector].flip)
     end
