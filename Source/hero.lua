@@ -112,6 +112,7 @@ local function hop(hero, clockwise)
         hero.state = 'hopClockwise'
     end
     hero.sprite.img:setShouldLoop(false)
+    hero.sprite.img:setDelay(50)
     hero.sprite.img:setFirstFrame(hero.sprite.loops[hero.state][hero.sector].frames[1])
     hero.sprite.img:setLastFrame(hero.sprite.loops[hero.state][hero.sector].frames[2])
     hero.sprite.img:reset()
@@ -122,8 +123,8 @@ local function hop(hero, clockwise)
     end
     hero.state = 'idle'
     hero.sprite.img:setShouldLoop(true)
+    hero.sprite.img:setDelay(100)
     hero:spriteAngle(hero.sector)
-    print ('hop finished')
 end
 
 local function damageFrames(img)
@@ -204,7 +205,7 @@ function Hero:init(battleRing)
 
     self.moveSpeed = 1
     self.moveDist = 96
-    self.hopDuration = 25
+    self.hopDuration = 15
     self.dir = 'clockwise'
 
     self.attackDist = 32
@@ -215,7 +216,7 @@ function Hero:init(battleRing)
     self.maxCharge = 10
     self.attackCharge = 0
 
-    self.driftDelay = 15
+    self.driftDelay = 20
     self.driftSpeed = 2
 
     self.hp = 100

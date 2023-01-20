@@ -1,6 +1,39 @@
 {
 	"MonsterName": "DefaultMonster",
 	"HP" : 150.0,
+	"RingImages" : [
+		{
+			"FadeAttack" : [
+				{
+					"South" : [
+						{
+							"ImagePath" : "Images/fadeAttackSouth.gif",
+							"Speed" : 80,
+							"Frames" : 12
+						}
+					],
+					"SouthWest": [
+						{
+							"ImagePath" : "Images/fadeAttackSouthWest.gif",
+							"Speed" : 80,
+							"Frames" : 12
+						}
+					]
+				}
+			],
+			"Vulnerability" : [
+				{
+					"Any" : [
+						{
+							"ImagePath" : "Images/vulnerability.gif",
+							"Speed" : 80,
+							"Frames" : 6
+						}
+					]
+				}
+			]
+		}
+	],
 	"AttackPattern": [
 		{
 			"Sequences": [
