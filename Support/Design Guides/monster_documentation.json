@@ -1,0 +1,55 @@
+{
+    "MonsterName": "<string> The Name of the monster",
+    "MonsterHP": "<float> The Maxium HP of the monster. If HP reaches zero, the monster will die",
+    "MonsterStamina": "<float> The Maxium Stamina of the monster. When monster perform attack patterns it will cost their stamina ",
+    "MonsterSlicesNumber": "<int> The number of slices of this monster's battlefield. The top slice will always be slice 1 and going clockwise as slice 2 and so on",
+    "MonsterAttackPatterns_comment": "<table> The table listing all attack patterns of the monster.",
+    "MonsterAttackPatterns" : [
+        {
+            "PatternName": "<string> The name of the attack pattern",
+            "PatternStaminaCost": "<float> Stamina cost of this attack pattern",
+            "PatternAnimation": "<string> Related Animation of this attack pattern",
+            "FullAttackLength": "<float> The total length of this attack patterns. This would determine how long is the timeline",
+            "PatternBeats_comment": "<table> A table of this specific pattern in a timeline, using the base unit of beats. Each element in this table represent a trigger of attack or vulnerbility on its triggerBeat.",
+            "PatternBeats" : [
+                {
+                    "_comment": "This is the first trigger of the attack pattern",
+                    "triggerBeat": "<float> At what specific beat on the timeline would this trigger. Starts at zero, ends at FullAttackLength",
+                    "attacking": {
+                        "slices": "<table> A table of the number of slices that would be hit. All the slices in the table will be hit at the same time",
+                        "damage": "<float> How much damage will this specific trigger deal to pc",
+                        "beatToHit": "<float> How long does it take from triggering to the execution of hitting the pc"
+                    },
+                    "vulnerablility": {
+                        "slice": "<table> A table of the number of slices that would be vulnerable. All the slices in the table will be vulnerable at the same time",
+                        "damageMultiplier": "<float> The multiplier of how much damage would be actual dealt to the monster when hitting these vulnerable slices",
+                        "beatLast": "<float> How long would these vulnerable slices last"
+                    }
+                },
+                {
+                    "_comment" :  "Here is an example of one trigger in attack pattern",
+                    "triggerBeat": 1,
+                    "triggerBeat_comment" : "This means this trigger will happen 1 beat after the beginning of this attack pattern. The slice will start to fill up at 1 beat", 
+                    "attacking": {
+                        "slices": [ 4, 6 ],
+                        "slices_comment" :  "The 4th to the north in the clockwise order, which in this case of 6 slices, would be the south slice. The 6th to the north in the clockwise order, which in this case of 6 slices, would be the northwest slice.",
+                        "damage": 3.5,
+                        "damage_comment" :  "If the player gets hit at either slice of this trigger, they will take 3.5 damage",
+                        "beatToHit": 1,
+                        "beatToHit_comment": "This attack takes 1 beat to hit, which means the slice starts filling at beat 1 in the timeline and deals the damage at beat 2 in the timeline"
+
+                    },
+                    "vulnerablility": {
+                        "slice": [ 2, 3 ],
+                        "damageMultiplier": 1.5,
+                        "damageMultiplier_comment" :  "If the original attack would deal 4 damage, after the multiplication, it deals 4*1.5 to the monster",
+                        "beatLast": 2.5,
+                        "beatLast_comment" :  "The vulnerability will appear at beat 1 in the timeline and ends at beat 3.5 in the timeline"
+
+                    }
+                }
+            ]
+
+        }
+    ]
+}

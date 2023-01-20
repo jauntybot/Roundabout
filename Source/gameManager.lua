@@ -1,4 +1,4 @@
-import "Spectacle"
+import "Util/spectacle"
 
 gmSpec = Spectacle({font = "Fonts/FenwickWoodtype", line_height = 1.2, lines = 2, background=playdate.graphics.kColorWhite})
 

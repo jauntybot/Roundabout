@@ -1,6 +1,6 @@
 import "hero"
 import "monster"
-
+import "Util/monsterLoader"
 
 
 local function coroutineCreate(parent, co, f, p1, p2, p3, p4)
@@ -31,6 +31,8 @@ function BattleRing:init(gameManager)
 
     self.center = {x=265,y=120}
     self.divisions = 6
+    self.sliceAngle = 60
+
     self.divisionsImage = playdate.graphics.image.new("Images/divisions.png")
     assert(self.divisionsImage)
     self.bgImage = AnimatedImage.new("Images/BG-1-dither.gif", {delay = 100, loop = true})
@@ -39,8 +41,10 @@ function BattleRing:init(gameManager)
     self.co = {
         battleStart = nil
     }
+
     self.hero = Hero(self)
-    self.monster = Monster(self)
+    self.monster = Monster(self, LoadMonsterFromJSONFile('MonsterJSON/monster_default.json'))
+    
     self.state = 'battling'
 
     spec:clear()
@@ -48,7 +52,7 @@ end
 
 function BattleRing:startBattle()
     coroutineCreate(self.co, 'battleStart', battleStartCutscene, self, self.hero, self.monster)
-    SoundManager:playBackgroundMusic()
+--    SoundManager:playBackgroundMusic()
 end
 
 function BattleRing:endBattle(win)

@@ -1,0 +1,362 @@
+{
+	"MonsterName": "DefaultMonster",
+	"HP" : 150.0,
+	"RingImages" : [
+		{
+			"FadeAttack" : [
+				{
+					"South" : [
+						{
+							"ImagePath" : "Images/fadeAttackSouth.gif",
+							"Speed" : 80,
+							"Frames" : 12
+						}
+					],
+					"SouthWest": [
+						{
+							"ImagePath" : "Images/fadeAttackSouthWest.gif",
+							"Speed" : 80,
+							"Frames" : 12
+						}
+					]
+				}
+			],
+			"Vulnerability" : [
+				{
+					"Any" : [
+						{
+							"ImagePath" : "Images/vulnerability.gif",
+							"Speed" : 80,
+							"Frames" : 6
+						}
+					]
+				}
+			]
+		}
+	],
+	"AttackPattern": [
+		{
+			"Sequences": [
+				{
+					"PatternName": "SmallQuickAttackLeft",
+					"PatternStaminaCost": 15.0,
+					"PatternAnimation": "SmallAttackLeft",
+					"FullAttackLength": 2.5,
+					"PatternBeats": [
+						{
+							"triggerBeat": 0,
+							"attacking": {
+								"slices": [ 5 ],
+								"damage": 5.5,
+								"beatToHit": 1.4
+							},
+							"vulnerablility": {
+								"slice": [ 2,3 ],
+								"damageMultiplier": 1.5,
+								"beatLast": 2.5
+							}
+						},
+						{
+							"triggerBeat": 1,
+							"attacking": {
+								"slices": [ 4, 6 ],
+								"damage": 3.5,
+								"beatToHit": 1
+							},
+							"vulnerablility": {
+							}
+						}
+					]
+
+				},
+				{
+					"PatternName": "SmallQuickAttackRight",
+					"PatternStaminaCost": 15.0,
+					"PatternAnimation": "SmallAttackRight",
+					"FullAttackLength": 2.5,
+					"PatternBeats": [
+						{
+							"triggerBeat": 0,
+							"attacking": {
+								"slices": [ 3 ],
+								"damage": 5.5,
+								"beatToHit": 1.4
+							},
+							"vulnerablility": {
+								"slice": [ 5,6 ],
+								"damageMultiplier": 1.5,
+								"beatLast": 2.5
+							}
+						},
+						{
+							"triggerBeat": 1,
+							"attacking": {
+								"slices": [ 2,4 ],
+								"damage": 3.5,
+								"beatToHit": 1
+							},
+							"vulnerablility": {
+							}
+						}
+					]
+
+				},
+				{
+					"PatternName": "SmallQuickAttackUp",
+					"PatternStaminaCost": 15.0,
+					"PatternAnimation": "SmallAttackUp",
+					"FullAttackLength": 2.5,
+					"PatternBeats": [
+						{
+							"triggerBeat": 0,
+							"attacking": {
+								"slices": [ 1 ],
+								"damage": 5.5,
+								"beatToHit": 1.4
+							},
+							"vulnerablility": {
+								"slice": [ 3,4,5 ],
+								"damageMultiplier": 1.5,
+								"beatLast": 2.5
+							}
+						},
+						{
+							"triggerBeat": 1,
+							"attacking": {
+								"slices": [ 2, 6 ],
+								"damage": 3.5,
+								"beatToHit": 1
+							},
+							"vulnerablility": {
+							}
+						}
+					]
+
+				},
+				{
+					"PatternName": "MidRangeAttackLeft",
+					"PatternStaminaCost": 35.0,
+					"PatternAnimation": "MidRangeAttack",
+					"FullAttackLength": 4,
+					"PatternBeats": [
+						{
+							"triggerBeat": 0,
+							"attacking": {
+								"slices": [ 5, 6 ],
+								"damage": 10.0,
+								"beatToHit": 1
+							},
+							"vulnerablility": {
+								"slice": [ 1, 4 ],
+								"damageMultiplier": 2.0,
+								"beatLast": 3
+							}
+						},
+						{
+							"triggerBeat": 1,
+							"attacking": {
+								"slices": [ 1, 4 ],
+								"damage": 10.0,
+								"beatToHit": 1
+							},
+							"vulnerablility": {
+								"slice": [ 5, 6 ],
+								"damageMultiplier": 2.0,
+								"beatLast": 2
+							}
+						},
+						{
+							"triggerBeat": 2,
+							"attacking": {
+								"slices": [ 1, 4, 5, 6 ],
+								"damage": 17.5,
+								"beatToHit": 2
+							},
+							"vulnerablility": {
+							}
+						}
+
+					]
+
+				},
+				{
+					"PatternName": "MidRangeAttackRight",
+					"PatternStaminaCost": 35.0,
+					"PatternAnimation": "MidRangeAttack",
+					"FullAttackLength": 4,
+					"PatternBeats": [
+						{
+							"triggerBeat": 0,
+							"attacking": {
+								"slices": [ 2, 3 ],
+								"damage": 10.0,
+								"beatToHit": 1
+							},
+							"vulnerablility": {
+								"slice": [ 1, 4 ],
+								"damageMultiplier": 2.0,
+								"beatLast": 3
+							}
+						},
+						{
+							"triggerBeat": 1,
+							"attacking": {
+								"slices": [ 1, 4 ],
+								"damage": 10.0,
+								"beatToHit": 1
+							},
+							"vulnerablility": {
+								"slice": [ 2, 3 ],
+								"damageMultiplier": 2.0,
+								"beatLast": 2
+							}
+						},
+						{
+							"triggerBeat": 2,
+							"attacking": {
+								"slices": [ 1, 2, 3, 4 ],
+								"damage": 17.5,
+								"beatToHit": 2
+							},
+							"vulnerablility": {
+							}
+						}
+
+					]
+
+				},
+				{
+					"PatternName": "UltSwingAttack",
+					"PatternStaminaCost": 45.0,
+					"PatternAnimation": "UltSwingAttack",
+					"FullAttackLength": 8.8,
+					"PatternBeats": [
+						{
+							"triggerBeat": 0,
+							"attacking": {
+								"slices": [ 3 ],
+								"damage": 15.0,
+								"beatToHit": 1
+							},
+							"vulnerablility": {
+							}
+						},
+						{
+							"triggerBeat": 0.7,
+							"attacking": {
+								"slices": [ 4 ],
+								"damage": 15.0,
+								"beatToHit": 1
+							},
+							"vulnerablility": {
+							}
+						},
+						{
+							"triggerBeat": 1,
+							"attacking": {
+							},
+							"vulnerablility": {
+								"slice": [ 2 ],
+								"damageMultiplier": 2.0,
+								"beatLast": 3.8
+							}
+						},
+						{
+							"triggerBeat": 1.4,
+							"attacking": {
+								"slices": [ 5 ],
+								"damage": 15.0,
+								"beatToHit": 1
+							},
+							"vulnerablility": {
+							}
+						},
+						{
+							"triggerBeat": 2.1,
+							"attacking": {
+								"slices": [ 6 ],
+								"damage": 15.0,
+								"beatToHit": 1
+							},
+							"vulnerablility": {
+							}
+						},
+						{
+							"triggerBeat": 2.8,
+							"attacking": {
+								"slices": [ 1 ],
+								"damage": 15.0,
+								"beatToHit": 1
+							},
+							"vulnerablility": {
+							}
+						},
+						{
+							"triggerBeat": 4,
+							"attacking": {
+								"slices": [ 2 ],
+								"damage": 15.0,
+								"beatToHit": 1
+							},
+							"vulnerablility": {
+							}
+						},
+						{
+							"triggerBeat": 4.7,
+							"attacking": {
+								"slices": [ 1 ],
+								"damage": 15.0,
+								"beatToHit": 1
+							},
+							"vulnerablility": {
+							}
+						},
+						{
+							"triggerBeat": 5,
+							"attacking": {
+							},
+							"vulnerablility": {
+								"slice": [ 3 ],
+								"damageMultiplier": 2.0,
+								"beatLast": 3.8
+							}
+						},
+						{
+							"triggerBeat": 5.4,
+							"attacking": {
+								"slices": [ 6 ],
+								"damage": 15.0,
+								"beatToHit": 1
+							},
+							"vulnerablility": {
+							}
+						},
+						{
+							"triggerBeat": 6.1,
+							"attacking": {
+								"slices": [ 5 ],
+								"damage": 15.0,
+								"beatToHit": 1
+							},
+							"vulnerablility": {
+							}
+						},
+						{
+							"triggerBeat": 6.8,
+							"attacking": {
+								"slices": [ 4 ],
+								"damage": 15.0,
+								"beatToHit": 1
+							},
+							"vulnerablility": {
+							}
+						}
+
+
+					]
+
+				}
+			]
+		}
+	]
+}
