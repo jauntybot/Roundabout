@@ -14,12 +14,15 @@ local function fadeAttack(monster, attack, hero)
     attack.img:setPaused(true)
     attack.img:reset()
     attack.img:setPaused(false)
-    for d=1, attack.duration - 10 do coroutine.yield() end
+
+    for d=1, attack.duration - 20 do coroutine.yield() end
+    SoundManager:playSound(SoundManager.kSoundFadeAttack)
+    for d=1, 10 do coroutine.yield() end
     if (hero.sector == attack.slice) then
         if hero.state ~= 'parry' then
             hero:takeDmg(monster.dmg)
         else
-            hero:parryHit()
+            hero:parryHit(monster)
         end
     end
 end
@@ -36,12 +39,17 @@ local function attackSequence(monster, sequence, hero)
     for b=1, #sequence do
         if sequence[b].fadeAttack ~= nil then
             for s=1, #sequence[b].fadeAttack.slices do
-                CoCreate(monster.attacks[sequence[b].fadeAttack.slices[s]], "co", fadeAttack, monster, monster.attacks[sequence[b].fadeAttack.slices[s]], hero)
+                CoCreate(monster.sprites.fadeAttack[sequence[b].fadeAttack.slices[s]], "co", fadeAttack, monster, monster.sprites.fadeAttack[sequence[b].fadeAttack.slices[s]], hero)
+            end
+        end
+        if sequence[b].projectile ~= nil then
+            for s=1, #sequence[b].projectile.slices do
+                
             end
         end
         if sequence[b].vulnerable ~= nil then
             for s=1, #sequence[b].vulnerable.slices do
-                CoCreate(monster.vulnerability[sequence[b].vulnerable.slices[s]], "co", vulnerableSlice, monster, monster.vulnerability[sequence[b].vulnerable.slices[s]], 55)
+                CoCreate(monster.sprites.vulnerable[sequence[b].vulnerable.slices[s]], "co", vulnerableSlice, monster, monster.sprites.vulnerable[sequence[b].vulnerable.slices[s]], 55)
             end
         end
 
@@ -77,57 +85,48 @@ function Monster:init(battleRing, options)
 -- variables
     self.battleRing = battleRing
 
-    self.sprite = {
-        img = gfx.image.new("images/monster.png")
+    self.sprites = {
+        monster = {
+            img = gfx.image.new("images/monster.png")
+        },
+        fadeAttack = {
+            {img = AnimatedImage.new("Images/fadeAttackSouth.gif", {delay = 80, loop = false}), flip = gfx.kImageFlippedY, duration = 1200 / (100 - 80), slice = 1},
+            {img = AnimatedImage.new("Images/fadeAttackSouthWest.gif", {delay = 80, loop = false}), flip = gfx.kImageFlippedXY, duration = 1200 / (100 - 80), slice = 2},
+            {img = AnimatedImage.new("Images/fadeAttackSouthWest.gif", {delay = 80, loop = false}), flip = gfx.kImageFlippedX, duration = 1200 / (100 - 80), slice = 3},
+            {img = AnimatedImage.new("Images/fadeAttackSouth.gif", {delay = 80, loop = false}), flip = gfx.kImageUnflipped, duration = 1200 / (100 - 80), slice = 4},
+            {img = AnimatedImage.new("Images/fadeAttackSouthWest.gif", {delay = 80, loop = false}), flip = gfx.kImageUnflipped, duration = 1200 / (100 - 80), slice = 5},
+            {img = AnimatedImage.new("Images/fadeAttackSouthWest.gif", {delay = 80, loop = false}), flip = gfx.kImageFlippedY, duration = 1200 / (100 - 80), slice = 6}
+        },
+        projectile = {
+
+        },
+        vulnerable = {
+            {img = nil, pos = {x=0,y=0}, duration = 600 / (100 - 80), slice = 1},
+            {img = nil, pos = {x=0,y=0}, duration = 600 / (100 - 80), slice = 2},
+            {img = nil, pos = {x=0,y=0}, duration = 600 / (100 - 80), slice = 3},
+            {img = nil, pos = {x=0,y=0}, duration = 600 / (100 - 80), slice = 4},
+            {img = nil, pos = {x=0,y=0}, duration = 600 / (100 - 80), slice = 5},
+            {img = nil, pos = {x=0,y=0}, duration = 600 / (100 - 80), slice = 6}
+        }
     }
-    assert(self.sprite.img)
+    assert(self.sprites.monster.img)
+    for i=1,#self.sprites.fadeAttack do assert(self.sprites.fadeAttack[i].img) end
+    for i=1, #self.sprites.vulnerable do
+        self.sprites.vulnerable[i].img = AnimatedImage.new("Images/vulnerability.gif", {delay = 80, loop = true})
+        assert(self.sprites.vulnerable[i].img)
+        self.sprites.vulnerable[i].img:setPaused(true)
+        local sectorAngle = 60
+        local _x = 42 * math.cos((sectorAngle*(i-1)-90)*3.14159/180) + 265
+        local _y = 42 * math.sin((sectorAngle*(i-1)-90)*3.14159/180) + 120
+        self.sprites.vulnerable[i].pos = {x=_x, y=_y}
+    end
+
     self.pos = {x=265,y=-32}
     self.maxHP = options.hp or 100
     self.hp = options.hp or 100
 
     self.dmg = 10
-    self.attacks = {
-        {img = AnimatedImage.new("Images/fadeAttackSouth.gif", {delay = 80, loop = false}), flip = gfx.kImageFlippedY, duration = 1200 / (100 - 80), slice = 1},
-        {img = AnimatedImage.new("Images/fadeAttackSouthWest.gif", {delay = 80, loop = false}), flip = gfx.kImageFlippedXY, duration = 1200 / (100 - 80), slice = 2},
-        {img = AnimatedImage.new("Images/fadeAttackSouthWest.gif", {delay = 80, loop = false}), flip = gfx.kImageFlippedX, duration = 1200 / (100 - 80), slice = 3},
-        {img = AnimatedImage.new("Images/fadeAttackSouth.gif", {delay = 80, loop = false}), flip = gfx.kImageUnflipped, duration = 1200 / (100 - 80), slice = 4},
-        {img = AnimatedImage.new("Images/fadeAttackSouthWest.gif", {delay = 80, loop = false}), flip = gfx.kImageUnflipped, duration = 1200 / (100 - 80), slice = 5},
-        {img = AnimatedImage.new("Images/fadeAttackSouthWest.gif", {delay = 80, loop = false}), flip = gfx.kImageFlippedY, duration = 1200 / (100 - 80), slice = 6}
-    }
-    for i=1,#self.attacks do assert(self.attacks[i].img) end
-
-    self.vulnerability = {
-        {img = nil, pos = {x=0,y=0}, duration = 600 / (100 - 80), slice = 1},
-        {img = nil, pos = {x=0,y=0}, duration = 600 / (100 - 80), slice = 2},
-        {img = nil, pos = {x=0,y=0}, duration = 600 / (100 - 80), slice = 3},
-        {img = nil, pos = {x=0,y=0}, duration = 600 / (100 - 80), slice = 4},
-        {img = nil, pos = {x=0,y=0}, duration = 600 / (100 - 80), slice = 5},
-        {img = nil, pos = {x=0,y=0}, duration = 600 / (100 - 80), slice = 6}
-    }
-    for i=1, #self.vulnerability do
-        self.vulnerability[i].img = AnimatedImage.new("Images/vulnerability.gif", {delay = 80, loop = true})
-        assert(self.vulnerability[i].img)
-        self.vulnerability[i].img:setPaused(true)
-        local sectorAngle = 60
-        local _x = 42 * math.cos((sectorAngle*(i-1)-90)*3.14159/180) + 265
-        local _y = 42 * math.sin((sectorAngle*(i-1)-90)*3.14159/180) + 120
-        self.vulnerability[i].pos = {x=_x, y=_y}
-    end
-
-    self.patternDelay = 15
-    self.attackSequences = options.attackSequences or {
-        --{{fadeAttack = {1}}, {fadeAttack = {2}}, {fadeAttack = {3}}, {fadeAttack = {4}}, {fadeAttack = {5}}, {fadeAttack = {6}}, {}},
-        {
-           {fadeAttack = {slices = {2, 3}}, vulnerable = {slices = {1, 4}}}, {vulnerable = {slices = {1, 4}}}, {fadeAttack = {slices = {4, 5}}, vulnerable = {slices = {3, 6}}}, {vulnerable = {slices = {3, 6}}}, {fadeAttack = {slices = {6, 1}}, vulnerable = {slices = {5, 2}}}, {vulnerable = {slices = {5, 2}}}, {}
-        }
-        -- {
-        --     {fadeAttack = {3,4}}, {}, {fadeAttack = {4,5}}, {}, {fadeAttack = {5,6}}, {}, {fadeAttack = {6,1}}, {}, {fadeAttack = {1,2}}, {}, {vulnerable = {2}}, {vulnerable = {2}}, {vulnerable ={2}}, {}, {}
-        -- },
-        -- {
-        --     {fadeAttack = {2,1}}, {fadeAttack = {1,6}}, {fadeAttack = {6,5}}, {fadeAttack = {5,4}}, {fadeAttack = {4,3}}, {vulnerable = {3}}, {vulnerable ={3}}, {}, {}
-        -- -- {{fadeAttack = {1, 3, 5}, vulnerable = {6}}, {fadeAttack = {2, 4, 6}, vulnerable = {1}}, {fadeAttack = {1, 3, 5}, vulnerable = {2}}, {fadeAttack = {2, 4, 6}, vulnerable = {3}}, {fadeAttack = {1, 3, 5}, vulnerable = {4}}, {fadeAttack = {2, 4, 6}, vulnerable = {5}}, {}, {}}
-        -- }
-    }
+    self.attackSequences = options.attackSequences
 
     self.co = {
         attackPattern = nil,
@@ -135,7 +134,6 @@ function Monster:init(battleRing, options)
         damaged = nil,
         entrance = nil
     }
-
 
     self.entranceDuration = 25
 
@@ -150,8 +148,8 @@ function Monster:startAttacking(hero)
 end
 
 function Monster:stopAttacking()
-    for k,a in pairs(self.attacks) do a.img:setFrame(a.img.image_table:getLength() + 1) end
-    for k,sect in ipairs(self.vulnerability) do
+    for k,a in pairs(self.sprites.fadeAttack) do a.img:setFrame(a.img.image_table:getLength() + 1) end
+    for k,sect in ipairs(self.sprites.vulnerable) do
         sect.img:reset()
         sect.img:setPaused(true)
     end
@@ -162,9 +160,9 @@ end
 function Monster:takeDmg(dmg, sector)
     spec:clear()
     local dmgScale = 0.5
-    for i=1, #self.vulnerability do
+    for i=1, #self.sprites.vulnerable do
         if sector == i then 
-            if not self.vulnerability[i].img:getPaused() then
+            if not self.sprites.vulnerable[i].img:getPaused() then
                 dmgScale = 1.5
             break end
         end
@@ -181,19 +179,19 @@ function Monster:takeDmg(dmg, sector)
         self.battleRing:endBattle(true)
         self:stopAttacking()
     else
-        CoCreate(self.co, "damaged", damageFrames, self.sprite.img)
+        CoCreate(self.co, "damaged", damageFrames, self.sprites.monster.img)
     end
 end
 
 
 function Monster:drawAttacks()
-    for i, v in ipairs(self.attacks) do
+    for i, v in ipairs(self.sprites.fadeAttack) do
         if not v.img:loopFinished() then
             v.img:drawCentered(self.battleRing.center.x, self.battleRing.center.y, v.flip)
         end
     end
 
-    for i, v in ipairs(self.vulnerability) do
+    for i, v in ipairs(self.sprites.vulnerable) do
         if not v.img:getPaused() then
             v.img:drawAnchored(v.pos.x, v.pos.y, 0.3125, 0.625)
         end
@@ -204,10 +202,10 @@ function Monster:update()
     for co,f in pairs(self.co) do
         if f~=nil then CoRun(self.co, co) end
     end
-    for s,a in pairs(self.attacks) do
+    for s,a in pairs(self.sprites.fadeAttack) do
         if a.co~=nil then CoRun(a, "co") end
     end
-    for s,v in pairs (self.vulnerability) do
+    for s,v in pairs (self.sprites.vulnerable) do
         if v.co~=nil then CoRun(v, "co") end
     end
 end

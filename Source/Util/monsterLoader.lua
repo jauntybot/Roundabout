@@ -40,6 +40,7 @@ function ParseAttackSequences(jsonTable)
                 for i=1, #a.slices do
                     beat[key].slices[i] = a.slices[i]
                 end
+                if a.pattern then beat.pattern = a.pattern end
             end
             sequence[b] = beat
         end

@@ -3,13 +3,17 @@ local snd = playdate.sound
 
 SoundManager = {}
 
-SoundManager.kSoundDodgeRoll = 'orgRoll'
-SoundManager.kSoundIneffectiveHit = 'orgRegHit'
-SoundManager.kSoundCriticalHit = 'orgSupHit'
+SoundManager.kSoundFlutter = 'flutter'
+SoundManager.kSoundIneffectiveHit = 'hitEnemyReg'
+SoundManager.kSoundCriticalHit = 'hitEnemy'
 SoundManager.kSoundGuardHold = 'orgHeldGuard'
 SoundManager.kSoundPerfectGuard = 'orgPerfGuard'
-SoundManager.kSoundHeroDmg = 'orgDmg'
+SoundManager.kSoundHeroDmg = 'dmgCrunch'
 SoundManager.kSoundHeroSwipe = 'orgSwipe'
+SoundManager.kSoundChargeWait = 'chargeWait'
+SoundManager.kSoundChargePeak = 'chargePeak'
+SoundManager.kSoundFadeAttack = 'enemyAxeSwipe'
+
 
 local sounds = {}
 

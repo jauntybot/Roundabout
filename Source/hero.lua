@@ -64,21 +64,25 @@ local function chargeAttack(hero)
 
     local to = hero.attackDist
     local from = hero.dist
+    local chargeLvl = 1
     while hero.attackCharge < hero.maxCharge do
         hero.attackCharge += hero.chargeRate * hero.moveSpeed
         hero:addCooldown(hero.chargeRate * hero.moveSpeed)
         hero.dist = from+hero.attackCharge/hero.maxCharge*(to - from)
         coroutine.yield()
+        if hero.attackCharge / hero.maxCharge > 0.333 and chargeLvl < 2 then SoundManager:playSound(SoundManager.kSoundChargeWait) chargeLvl = 2 end
+        if hero.attackCharge / hero.maxCharge > 0.666 and chargeLvl < 3 then SoundManager:playSound(SoundManager.kSoundChargeWait) chargeLvl = 3 end
     end
+    SoundManager:playSound(SoundManager.kSoundChargePeak)
 end
 
-local function attack(hero)
+local function attack(hero, target)
     hero:addCooldown(hero.attackCost)
     hero.state = 'attacking'
+
     hero:spriteAngle({paused = false, heroLoop = false, weaponLoop = false})
-
-    hero.battleRing.monster:takeDmg(hero.attackDmg + hero.attackCharge, hero.sector)
-
+    SoundManager:playSound(SoundManager.kSoundHeroSwipe)
+    target:takeDmg(hero.attackDmg + hero.attackCharge, hero.sector)
     hero.moveSpeed = 1
     hero.attackCharge = 0
 
@@ -90,7 +94,6 @@ local function attack(hero)
             hero.dist = from+f/hero.sprites.weapon.loops[hero.state].duration*(to - from)
         end
         coroutine.yield()
-        print ('yield')
     end
 
     hero.state = 'idle'
@@ -112,7 +115,7 @@ end
 
 local function hop(hero, clockwise)
     hero.co.drift = nil
-
+    
     local from = hero.crankProd
     local to = hero.crankProd - 15
     hero.state = 'hopCounter'
@@ -120,7 +123,10 @@ local function hop(hero, clockwise)
         to = hero.crankProd + 15
         hero.state = 'hopClockwise'
     end
+
     hero:spriteAngle({heroLoop = false, heroDelay = 50})
+    SoundManager:playSound(SoundManager.kSoundFlutter)
+
     for d=1, hero.hopDuration do
         hero.crankProd = from+d/hero.hopDuration*(to - from)
         coroutine.yield()
@@ -297,7 +303,7 @@ function Hero:slain()
     self.co = {}
     self.state = 'slain'
     self.sector = 1
-    self:spriteAngle({slice = 1, paused = truewww})
+    self:spriteAngle({slice = 1, paused = true})
 
 end
 
@@ -330,12 +336,10 @@ end
 
 function Hero:releaseAttack(target)
     if (self.co.attack==nil and self.state == 'attacking') then
--- reset affiliated coroutines and bool
+-- reset affiliated coroutine
         self.co.charge = nil
--- damage and audio of action
-        SoundManager:playSound(SoundManager.kSoundHeroSwipe)
 -- animation and translation of hero pos        
-        CoCreate(self.co, "attack", attack, self)
+        CoCreate(self.co, "attack", attack, self, target)
     end
 end
 
@@ -350,9 +354,9 @@ function Hero:parry()
     end
 end
 
-function Hero:parryHit()
+function Hero:parryHit(target)
     self:addCooldown(self.parryCost)
-    CoCreate(self.co, "attack", attack, self)
+    CoCreate(self.co, "attack", attack, self, target)
     SoundManager:playSound(SoundManager.kSoundPerfectGuard)
 end
 
@@ -391,7 +395,6 @@ function Hero:applyPosition()
         self:addCooldown(self.moveCost)
         self.sector = prod
         self:spriteAngle({})
-        SoundManager:playSound(SoundManager.kSoundDodgeRoll)
     end
 -- calculate hero's position on circumference
     local _x = self.dist * math.cos((self.crankProd-90)*3.14159/180) + self.battleRing.center.x

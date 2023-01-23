@@ -20,6 +20,13 @@
 				"speed" : 80,
 				"frames" : 6
 			}
+		},
+		"projectile" : {
+			"any" : {
+				"imagePath" : "Images/projectile.gif",
+				"speed" : 80,
+				"frames": 5
+			}
 		}
 	},
 	"attackSequences": [

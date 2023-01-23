@@ -82,7 +82,7 @@ end
 function BattleRing:draw()
     if self.state == 'battling' then self.monster:drawAttacks() end
     self.divisionsImage:drawCentered(self.center.x, self.center.y)
-    self.monster.sprite.img:drawCentered(self.monster.pos.x, self.monster.pos.y)
+    self.monster.sprites.monster.img:drawCentered(self.monster.pos.x, self.monster.pos.y)
     self.hero:draw()
     self.bgImage:drawCentered(200, 120)
     spec:draw(2,2)
