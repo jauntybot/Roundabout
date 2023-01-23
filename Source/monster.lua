@@ -15,49 +15,46 @@ local function fadeAttack(monster, attack, hero)
     attack.img:reset()
     attack.img:setPaused(false)
     for d=1, attack.duration - 10 do coroutine.yield() end
-    if (hero.sector == attack.slice and hero.state ~= 'hopping') then
-        if hero.parrying == false then
+    if (hero.sector == attack.slice) then
+        if hero.state ~= 'parry' then
             hero:takeDmg(monster.dmg)
         else
-            monster:takeDmg(hero.attackDmg, hero.sector)
             hero:parryHit()
         end
     end
 end
 
 local function vulnerableSlice(monster, vulnerability, duration)
-    vulnerability.img:setPaused(false) 
+    vulnerability.img:setPaused(false)
     vulnerability.img:reset()
 
     for d=1, duration do coroutine.yield() end
     vulnerability.img:setPaused(true)
 end
 
-local function attackSequence(monster, attack, hero)
-    for b=1, #attack.sequence do
-        local dmgdSectors = {}
-
-        if attack.sequence[b].fadeAttack ~= nil then
-            for s=1, #attack.sequence[b].fadeAttack do
-                CoCreate(monster.attacks[attack.sequence[b].fadeAttack[s]], "co", fadeAttack, monster, monster.attacks[attack.sequence[b].fadeAttack[s]], hero)
+local function attackSequence(monster, sequence, hero)
+    for b=1, #sequence do
+        if sequence[b].fadeAttack ~= nil then
+            for s=1, #sequence[b].fadeAttack.slices do
+                CoCreate(monster.attacks[sequence[b].fadeAttack.slices[s]], "co", fadeAttack, monster, monster.attacks[sequence[b].fadeAttack.slices[s]], hero)
             end
         end
-        if attack.sequence[b].vulnerable ~= nil then
-            for s=1, #attack.sequence[b].vulnerable do
-                CoCreate(monster.vulnerability[attack.sequence[b].vulnerable[s]], "co", vulnerableSlice, monster, monster.vulnerability[attack.sequence[b].vulnerable[s]], attack.beatLength)
+        if sequence[b].vulnerable ~= nil then
+            for s=1, #sequence[b].vulnerable.slices do
+                CoCreate(monster.vulnerability[sequence[b].vulnerable.slices[s]], "co", vulnerableSlice, monster, monster.vulnerability[sequence[b].vulnerable.slices[s]], 55)
             end
         end
 
-        for d=1, attack.beatLength do coroutine.yield() end
+        for d=1, 55 do coroutine.yield() end
     end
 end
 
 local function attackPattern(monster, hero)
 
     for i=1, 50 do
-        local a = monster.attackPattern[math.random(#monster.attackPattern)]
+        local a = monster.attackSequences[math.random(#monster.attackSequences)]
         CoCreate(monster.co, "attack", attackSequence, monster, a, hero)
-        for d=1, a.beatLength * #a.sequence do coroutine.yield() end
+        for d=1, 55 * #a do coroutine.yield() end
     end
 end
 
@@ -118,23 +115,19 @@ function Monster:init(battleRing, options)
     end
 
     self.patternDelay = 15
-    self.attackPattern = {
+    self.attackSequences = options.attackSequences or {
         --{{fadeAttack = {1}}, {fadeAttack = {2}}, {fadeAttack = {3}}, {fadeAttack = {4}}, {fadeAttack = {5}}, {fadeAttack = {6}}, {}},
         {
-            beatLength = 27.5,
-            sequence = {{fadeAttack = {2, 3}, vulnerable = {1, 4}}, {vulnerable = {1, 4}}, {fadeAttack = {4, 5}, vulnerable = {3, 6}}, {vulnerable = {3, 6}}, {fadeAttack = {6, 1}, vulnerable = {5, 2}}, {vulnerable = {5, 2}}, {}},
-        },
-        {
-            beatLength = 27.5,
-            sequence = {{fadeAttack = {3,4}}, {}, {fadeAttack = {4,5}}, {}, {fadeAttack = {5,6}}, {}, {fadeAttack = {6,1}}, {}, {fadeAttack = {1,2}}, {}, {vulnerable = {2}}, {vulnerable = {2}}, {vulnerable ={2}}, {}, {}}
-        },
-        {
-            beatLength = 55,
-            sequence = {{fadeAttack = {2,1}}, {fadeAttack = {1,6}}, {fadeAttack = {6,5}}, {fadeAttack = {5,4}}, {fadeAttack = {4,3}}, {vulnerable = {3}}, {vulnerable ={3}}, {}, {}},
-        -- {{fadeAttack = {1, 3, 5}, vulnerable = {6}}, {fadeAttack = {2, 4, 6}, vulnerable = {1}}, {fadeAttack = {1, 3, 5}, vulnerable = {2}}, {fadeAttack = {2, 4, 6}, vulnerable = {3}}, {fadeAttack = {1, 3, 5}, vulnerable = {4}}, {fadeAttack = {2, 4, 6}, vulnerable = {5}}, {}, {}}
+           {fadeAttack = {slices = {2, 3}}, vulnerable = {slices = {1, 4}}}, {vulnerable = {slices = {1, 4}}}, {fadeAttack = {slices = {4, 5}}, vulnerable = {slices = {3, 6}}}, {vulnerable = {slices = {3, 6}}}, {fadeAttack = {slices = {6, 1}}, vulnerable = {slices = {5, 2}}}, {vulnerable = {slices = {5, 2}}}, {}
         }
+        -- {
+        --     {fadeAttack = {3,4}}, {}, {fadeAttack = {4,5}}, {}, {fadeAttack = {5,6}}, {}, {fadeAttack = {6,1}}, {}, {fadeAttack = {1,2}}, {}, {vulnerable = {2}}, {vulnerable = {2}}, {vulnerable ={2}}, {}, {}
+        -- },
+        -- {
+        --     {fadeAttack = {2,1}}, {fadeAttack = {1,6}}, {fadeAttack = {6,5}}, {fadeAttack = {5,4}}, {fadeAttack = {4,3}}, {vulnerable = {3}}, {vulnerable ={3}}, {}, {}
+        -- -- {{fadeAttack = {1, 3, 5}, vulnerable = {6}}, {fadeAttack = {2, 4, 6}, vulnerable = {1}}, {fadeAttack = {1, 3, 5}, vulnerable = {2}}, {fadeAttack = {2, 4, 6}, vulnerable = {3}}, {fadeAttack = {1, 3, 5}, vulnerable = {4}}, {fadeAttack = {2, 4, 6}, vulnerable = {5}}, {}, {}}
+        -- }
     }
-
 
     self.co = {
         attackPattern = nil,

@@ -60,7 +60,7 @@ function GameManager:displayBattleState()
     
     spec:watch(self.battleRing.hero, "hp")
     spec:watch(self.battleRing.hero, "cooldown")
-    spec:watch(self.battleRing.hero, "sector")
+    spec:watch(self.battleRing.hero, "state")
 
     spec:watch(self.battleRing.monster, "hp", "monster HP")
 end

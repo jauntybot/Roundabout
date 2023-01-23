@@ -26,13 +26,34 @@ local function getJSONTableFromFile(path)
 
 end
 
+function ParseAttackSequences(jsonTable)
+
+    local sequences = {}
+
+    for s=1, #jsonTable do
+        local sequence = {}
+        sequence.name = jsonTable[s].sequenceName
+        for b=1, #jsonTable[s].sequenceBeats do
+            local beat = {}
+            for key,a in pairs(jsonTable[s].sequenceBeats[b]) do
+                beat[key] = {} beat[key].slices = {}
+                for i=1, #a.slices do
+                    beat[key].slices[i] = a.slices[i]
+                end
+            end
+            sequence[b] = beat
+        end
+        sequences[s] = sequence
+    end
+    return sequences
+end
+
 function ParseImageTables(jsonTable)
     
     local imgTable = {}
 
-    for i=1, #jsonTable do
-        print(i)
-    end
+    print(#jsonTable)
+
 end
 
 function LoadMonsterFromJSONFile(path)
@@ -42,8 +63,8 @@ function LoadMonsterFromJSONFile(path)
 
     local monster = {}
 
-    monster.hp = jsonTable.HP
-    monster.ringImgs = ParseImageTables(jsonTable.RingImages)
+    monster.hp = jsonTable.hp
+    monster.attackSequences = ParseAttackSequences(jsonTable.attackSequences)
     --monster.attackPattern = jsonTable.AttackPattern
 
     return monster
