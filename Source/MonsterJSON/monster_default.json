@@ -34,7 +34,7 @@
 			"sequenceName": "smallQuickAttackLeft",
 			"staminaCost": 15.0,
 			"monsterAnim": "placeholderAnimName",
-			"sequencePace": 1,
+			"sequencePace": 0.5,
 			"sequenceBeats": [
 				{
 					"fadeAttack": {
@@ -50,6 +50,16 @@
 					"fadeAttack": {
 						"slices": [ 4, 6 ],
 						"damage": 3.5
+					},
+					"vulnerable": {
+						"slices": [ 2,3 ],
+						"damageMultiplier": 1.5
+					}
+				}, 
+				{
+					"vulnerable": {
+						"slices": [ 2,3 ],
+						"damageMultiplier": 1.5
 					}
 				}
 			]
@@ -59,7 +69,7 @@
 			"sequenceName": "SmallQuickAttackRight",
 			"staminaCost": 15.0,
 			"monsterAnim": "SmallAttackRight",
-			"sequencePace": 1.5,
+			"sequencePace": 0.5,
 			"sequenceBeats": [
 				{
 					"fadeAttack": {
@@ -75,6 +85,16 @@
 					"fadeAttack": {
 						"slices": [ 2,4 ],
 						"damage": 3.5
+					},
+					"vulnerable": {
+						"slices": [ 5,6 ],
+						"damageMultiplier": 1.5
+					}
+				}, 
+				{
+					"vulnerable": {
+						"slices": [ 5,6 ],
+						"damageMultiplier": 1.5
 					}
 				}
 			]
@@ -84,7 +104,7 @@
 			"sequenceName": "SmallQuickAttackUp",
 			"staminaCost": 15.0,
 			"monsterAnim": "SmallAttackUp",
-			"sequencePace": 2.5,
+			"sequencePace": 0.5,
 			"sequenceBeats": [
 				{
 					"fadeAttack": {
@@ -100,6 +120,16 @@
 					"fadeAttack": {
 						"slices": [ 2, 6 ],
 						"damage": 3.5
+					},
+					"vulnerable": {
+						"slices": [ 3,4,5 ],
+						"damageMultiplier": 1.5
+					}
+				}, 
+				{
+					"vulnerable": {
+						"slices": [ 3,4,5 ],
+						"damageMultiplier": 1.5
 					}
 				}
 			]
@@ -109,7 +139,7 @@
 			"sequenceName": "MidRangeAttackLeft",
 			"staminaCost": 35.0,
 			"monsterAnim": "MidRangeAttack",
-			"sequencePace": 1.25,
+			"sequencePace": 1,
 			"sequenceBeats": [
 				{
 					"fadeAttack": {
@@ -145,7 +175,7 @@
 			"sequenceName": "MidRangeAttackRight",
 			"staminaCost": 35.0,
 			"monsterAnim": "MidRangeAttack",
-			"sequencePace": 1.25,
+			"sequencePace": 1,
 			"sequenceBeats": [
 				{
 					"fadeAttack": {

@@ -198,7 +198,7 @@ function Hero:init(battleRing)
                 hopCounter = {
                     {frames = {70, 74}, flip = gfx.kImageUnflipped},
                     {frames = {55, 59}, flip = gfx.kImageFlippedX},
-                    {frames = {60, 64}, flip = gfx.kImageFlippedX},
+                    {frames = {50, 54}, flip = gfx.kImageFlippedX},
                     {frames = {45, 49}, flip = gfx.kImageFlippedX},
                     {frames = {60, 64}, flip = gfx.kImageUnflipped},
                     {frames = {65, 69}, flip = gfx.kImageUnflipped}
@@ -262,6 +262,7 @@ function Hero:init(battleRing)
     self.driftSpeed = 2
 
     self.hp = 100
+    self.maxHP = 100
 
     self.moveCost = 5
     self.attackCost = 5

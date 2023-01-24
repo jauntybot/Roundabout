@@ -1,6 +1,7 @@
 import "hero"
 import "monster"
 import "Util/monsterLoader"
+import "uiSlider"
 
 
 local function coroutineCreate(parent, co, f, p1, p2, p3, p4)
@@ -28,6 +29,20 @@ class('BattleRing').extends()
 function BattleRing:init(gameManager)
 
     self.gameManager = gameManager
+    local options = {
+        title = "hp",
+        titleTop = true,
+        lineHeight = 1.2,
+        background = playdate.graphics.kColorWhite,
+        border = {width = 4},
+        center = {x=56,y=166}, 
+        dimensions = {x=72,y=16}
+    }
+    self.hpSlider = Slider(options)
+    options.center = {x=56, y=208} options.title = "cooldown" options.titleTop = false
+    self.cooldownSlider = Slider(options)
+    options.center = {x=56, y=96} options.title = "monster"
+    self.monsterSlider = Slider(options)
 
     self.center = {x=265,y=120}
     self.divisions = 6
@@ -58,7 +73,7 @@ end
 function BattleRing:endBattle(win)
     self.state = 'endBattle'
     spec:clear()
-    spec:print("Press UP to reset.")
+    spec:print("press up to reset.")
     playdate.inputHandlers.pop()
     if win then 
         self.gameManager:displayWinState()
@@ -76,7 +91,7 @@ function BattleRing:update()
 
     self.hero:update()
     self.monster:update()
-
+    
 end
 
 function BattleRing:draw()
@@ -84,6 +99,9 @@ function BattleRing:draw()
     self.divisionsImage:drawCentered(self.center.x, self.center.y)
     self.monster.sprites.monster.img:drawCentered(self.monster.pos.x, self.monster.pos.y)
     self.hero:draw()
+    if self.state == 'battling' then self.monster:drawTopAttacks() end
     self.bgImage:drawCentered(200, 120)
-    spec:draw(2,2)
+    self.hpSlider:draw(self.hero.hp, self.hero.maxHP)
+    self.cooldownSlider:draw(self.hero.cooldown, self.hero.cooldownMax)
+    self.monsterSlider:draw(self.monster.hp, self.monster.maxHP)
 end
