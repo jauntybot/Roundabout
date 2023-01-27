@@ -82,7 +82,10 @@ local function attack(hero, target)
 
     hero:spriteAngle({paused = false, heroLoop = false, weaponLoop = false})
     SoundManager:playSound(SoundManager.kSoundHeroSwipe)
-    target:takeDmg(hero.attackDmg + hero.attackCharge, hero.sector)
+
+    if hero.dist < hero.weaponRange then
+        target:takeDmg(hero.attackDmg + hero.attackCharge, hero.sector)
+    end
     hero.moveSpeed = 1
     hero.attackCharge = 0
 
@@ -145,6 +148,14 @@ local function damageFrames(img)
     end
 end
 
+local function deathAnim(hero)
+    hero:spriteAngle({state = 'deathSpiral', slice = 1})
+    while not hero.sprites.hero.img:loopFinished() do
+        coroutine.yield()
+    end
+    hero:spriteAngle({state = 'slain', heroLoop = true, heroDelay = 100})
+end
+
 class('Hero').extends()
 
 
@@ -168,7 +179,7 @@ function Hero:init(battleRing)
 
     self.sprites = {
         hero = {
-            img = AnimatedImage.new("Images/sprite-PC.gif", {delay = 100, loop = true}),
+            img = AnimatedImage.new("Images/hero-sprite.gif", {delay = 100, loop = true}),
             loops = {
                 idle = {
                     {frames = {19, 24}, flip = gfx.kImageUnflipped},
@@ -203,8 +214,11 @@ function Hero:init(battleRing)
                     {frames = {60, 64}, flip = gfx.kImageUnflipped},
                     {frames = {65, 69}, flip = gfx.kImageUnflipped}
                 },
+                deathSpiral = {
+                    {frames = {75, 87}, flip = gfx.kImageUnflipped}
+                },
                 slain = {
-                    {frames = {75, 75}, fliip = gfx.kImageUnflipped}
+                    {frames = {88, 99}, flip = gfx.kImageUnflipped}
                 }
             }
         },
@@ -227,6 +241,9 @@ function Hero:init(battleRing)
                     {frames = {30, 34}, flip = gfx.kImageUnflipped, topSort = false},
                     {frames = {35, 39}, flip = gfx.kImageUnflipped, topSort = true},
                     speed = 50, frames = 5, duration = 15
+                },
+                slain = {
+                    {frames = {60, 60}, flip = gfx.kImageUnflipped, topSort = false},
                 }
             }
         }
@@ -237,7 +254,7 @@ function Hero:init(battleRing)
     self.sprites.weapon.loops.hopClockwise = self.sprites.weapon.loops.idle
     self.sprites.weapon.loops.hopCounter = self.sprites.weapon.loops.idle
     self.sprites.weapon.loops.parry = self.sprites.weapon.loops.attacking
-    self.sprites.weapon.loops.slain = self.sprites.weapon.loops.idle
+    self.sprites.weapon.loops.deathSpiral = self.sprites.weapon.loops.slain
 
     self.pos = {x=self.battleRing.center.x,y=170}
     self.sector = 4
@@ -253,6 +270,7 @@ function Hero:init(battleRing)
     self.attackDist = 32
     self.attackSpeed = 20
     self.attackDmg = 5
+    self.weaponRange = 56
 
     self.chargeRate = 0.15
     self.maxCharge = 10
@@ -284,8 +302,11 @@ function Hero:init(battleRing)
 -- crank input
         cranked = function(change, acceleratedChange) self:moveByCrank(change) end,
         upButtonDown = function() self:chargeAttack() end,
+        AButtonDown = function() self:chargeAttack() end,
         upButtonUp = function() self:releaseAttack(self.battleRing.monster) end,
-        downButtonDown = function() self:parry() end
+        AButtonUp = function() self:releaseAttack(self.battleRing.monster) end,
+        downButtonDown = function() self:parry() end,
+        BButtonDown = function() self:parry() end
     }
 
     self:spriteAngle({})
@@ -304,8 +325,7 @@ function Hero:slain()
     self.co = {}
     self.state = 'slain'
     self.sector = 1
-    self:spriteAngle({slice = 1, paused = true})
-
+    CoCreate(self.co, 'deathAnim', deathAnim, self)
 end
 
 function Hero:addCooldown(value)
@@ -345,8 +365,7 @@ function Hero:releaseAttack(target)
 end
 
 function Hero:parry()
--- if the hero is able to initiate a new action
-    if self.cooldown <= 0 then
+    if (self.cooldown <= 0) then
         self.co.charge = nil
         self.co.regen = nil
         self.co.drift = nil

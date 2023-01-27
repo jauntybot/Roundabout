@@ -7,7 +7,6 @@ function Slider:init(options)
     self.title = options.title
     self.titleTop = options.titleTop
     self.font = gfx.font.new("Fonts/Sasser Slab/Sasser-Small-Caps")
-    print (self.font~=nil)
     gfx.setFont(self.font)
     self.lineHeight = options.lineHeight
     self.border = options.border

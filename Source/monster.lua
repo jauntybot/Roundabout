@@ -46,7 +46,6 @@ local function projectile(monster, sprite, slice, pattern, hero)
     table.insert(sprite.pool, #sprite.pool+1, p)
   
     for d=1,monster.launchDelay do coroutine.yield() end
-    print('launch')
 -- straight pattern
     -- local from = 16
     -- local to = 170
@@ -71,7 +70,6 @@ local function projectile(monster, sprite, slice, pattern, hero)
     local toRot = fromRot + 180
     local rot = fromRot
     for d=1, monster.travelTime do
-        print ('yield')
         dist = from+d/monster.travelTime*(to - from)
         rot = fromRot+d/monster.travelTime*(toRot - fromRot)
         _x = dist * math.cos(rot*3.14159/180) + monster.battleRing.center.x
@@ -85,7 +83,7 @@ local function projectile(monster, sprite, slice, pattern, hero)
             return
         end
     end
-    p.setPaused(true)
+    p.img:setPaused(true)
     table.remove(sprite.pool, 1)
 end
 

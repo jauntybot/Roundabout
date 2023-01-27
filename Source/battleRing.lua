@@ -50,7 +50,9 @@ function BattleRing:init(gameManager)
 
     self.divisionsImage = playdate.graphics.image.new("Images/divisions.png")
     assert(self.divisionsImage)
-    self.bgImage = AnimatedImage.new("Images/BG-1-dither.gif", {delay = 100, loop = true})
+    self.ringLight = AnimatedImage.new("Images/BG-1-dither.gif", {delay = 100, loop = true})
+    assert(self.ringLight)
+    self.bgImage = playdate.graphics.image.new("Images/Roundabout-BG-brick.png")
     assert(self.bgImage)
 
     self.co = {
@@ -58,7 +60,7 @@ function BattleRing:init(gameManager)
     }
 
     self.hero = Hero(self)
-    self.monster = Monster(self, LoadMonsterFromJSONFile('MonsterJSON/monster_default.json'))
+    self.monster = Monster(self, LoadMonsterFromJSONFile('MonsterJSON/projectile_test.json'))
     
     self.state = 'battling'
 
@@ -95,12 +97,13 @@ function BattleRing:update()
 end
 
 function BattleRing:draw()
+    self.bgImage:drawCentered(200, 120)
     if self.state == 'battling' then self.monster:drawAttacks() end
     self.divisionsImage:drawCentered(self.center.x, self.center.y)
     self.monster.sprites.monster.img:drawCentered(self.monster.pos.x, self.monster.pos.y)
     self.hero:draw()
     if self.state == 'battling' then self.monster:drawTopAttacks() end
-    self.bgImage:drawCentered(200, 120)
+    self.ringLight:drawCentered(200, 120)
     self.hpSlider:draw(self.hero.hp, self.hero.maxHP)
     self.cooldownSlider:draw(self.hero.cooldown, self.hero.cooldownMax)
     self.monsterSlider:draw(self.monster.hp, self.monster.maxHP)

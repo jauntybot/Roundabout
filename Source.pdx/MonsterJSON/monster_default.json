@@ -29,9 +29,27 @@
 			}
 		}
 	},
+	"attackPatterns": [
+		{
+			"stages": [
+				[ 1, 1, 1],
+				[ 1, 1, 2],
+				[ 1, 2, 1]
+			]
+		},
+		{
+			"stages": [
+				[ 1, 2, 2],
+				[ 2, 2, 2, 2],
+				[ 2, 3, 2],
+				[ 1, 2, 2, 3]
+			]
+		}
+	],
 	"attackSequences": [
 		{
 			"sequenceName": "smallQuickAttackLeft",
+			"stage": 1,
 			"staminaCost": 15.0,
 			"monsterAnim": "placeholderAnimName",
 			"sequencePace": 0.5,
@@ -67,6 +85,7 @@
 		},
 		{
 			"sequenceName": "SmallQuickAttackRight",
+			"stage": 1,
 			"staminaCost": 15.0,
 			"monsterAnim": "SmallAttackRight",
 			"sequencePace": 0.5,
@@ -102,6 +121,7 @@
 		},
 		{
 			"sequenceName": "SmallQuickAttackUp",
+			"stage": 1,
 			"staminaCost": 15.0,
 			"monsterAnim": "SmallAttackUp",
 			"sequencePace": 0.5,
@@ -137,6 +157,7 @@
 		},
 		{
 			"sequenceName": "MidRangeAttackLeft",
+			"stage": 1,
 			"staminaCost": 35.0,
 			"monsterAnim": "MidRangeAttack",
 			"sequencePace": 1,
@@ -173,6 +194,7 @@
 		},
 		{
 			"sequenceName": "MidRangeAttackRight",
+			"stage": 1,
 			"staminaCost": 35.0,
 			"monsterAnim": "MidRangeAttack",
 			"sequencePace": 1,
