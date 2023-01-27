@@ -9,11 +9,12 @@ import "Util/soundManager"
 import "Util/spectacle"
 import "Util/coroutineShortcuts"
 import "Util/ringGFXFlip"
-spec = Spectacle({font = "Fonts/FenwickWoodtype", line_height = 1.2, lines = 2, background=playdate.graphics.kColorWhite})
-
 
 local gfx <const> = playdate.graphics
 local timer <const> = playdate.timer
+local options = {line_height = 1.2, lines = 2, background = playdate.graphics.kColorWhite}
+spec = Spectacle(options)
+
 
 
 local gameManager = GameManager()
@@ -25,6 +26,10 @@ local function setup()
 
 -- Initialize crank alert
     playdate.ui.crankIndicator:start()
+
+    spec:watchMemory()
+    spec:watchFPS()
+    
 end
 
 setup()
@@ -34,6 +39,8 @@ function playdate.update()
     gfx.clear()
 
     gameManager:update()
+
+    spec:draw(4,4)
 
 -- Display crank alert if crank is docked   
     if playdate.isCrankDocked() then

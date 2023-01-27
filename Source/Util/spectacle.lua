@@ -17,9 +17,11 @@ function Spectacle:init(options)
 	options = options or {}
 	self.line_height = options.line_height or 1.2
 	if options.font then
+		print('font')
 		self.font = graphics.font.new(options.font)
 	end
 	self.max_print_lines = options.lines or 10
+	print('lines '..self.max_print_lines)
 	self.visible = true
 	if options.visible ~= nil then
 		self.visible = options.visible
@@ -137,11 +139,11 @@ function Spectacle:watchMemory()
 			formatted_mem = mem_bytes:sub(i, i) .. formatted_mem
 		end
 		return formatted_mem
-	end, "Mem")
+	end, "mem")
 end
 
 function Spectacle:watchFPS(sample_count)
-	self:watch(self:getFPSFunction(sample_count), "FPS")
+	self:watch(self:getFPSFunction(sample_count), "fps")
 end
 
 function Spectacle:graphFPS(sample_count, options)
@@ -152,7 +154,7 @@ function Spectacle:graphFPS(sample_count, options)
 	end
 	options = options or {}
 	options.name = options.name or function(latest_sample)
-		return tostring(math.ceil(latest_sample)) .. " FPS"
+		return tostring(math.ceil(latest_sample)) .. " fps"
 	end
 	options.type = options.type or "line"
 	options.period = options.period or 0
@@ -355,6 +357,7 @@ function Spectacle:draw(x, y)
 	local font_height = old_font:getHeight()
 	local current_font = old_font
 	if self.font then
+		print('set font')
 		graphics.setFont(self.font)
 		font_height = self.font:getHeight()
 		current_font = self.font

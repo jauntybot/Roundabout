@@ -1,0 +1,209 @@
+{
+	"monsterName": "Default Monster",
+	"hp" : 150.0,
+	"ringImages" : {
+		"fadeAttack" : {
+			"south" : {
+				"imagePath" : "Images/fadeAttackSouth.gif",
+				"speed" : 80,
+				"frames" : 12
+			},
+			"southWest": {
+				"imagePath" : "Images/fadeAttackSouthWest.gif",
+				"speed" : 80,
+				"frames" : 12
+			}
+		},
+		"vulnerable" :  {
+			"any" : {
+				"imagePath" : "Images/vulnerability.gif",
+				"speed" : 80,
+				"frames" : 6
+			}
+		},
+		"projectile" : {
+			"any" : {
+				"imagePath" : "Images/projectile.gif",
+				"speed" : 80,
+				"frames": 5
+			}
+		}
+	},
+	"attackSequences": [
+		{
+			"sequenceName": "smallQuickAttackLeft",
+			"staminaCost": 15.0,
+			"monsterAnim": "placeholderAnimName",
+			"sequencePace": 0.5,
+			"sequenceBeats": [
+				{
+					"fadeAttack": {
+						"slices": [ 5 ],
+						"damage": 5.5
+					},
+					"vulnerable": {
+						"slices": [ 2,3 ],
+						"damageMultiplier": 1.5
+					}
+				},
+				{
+					"fadeAttack": {
+						"slices": [ 4, 6 ],
+						"damage": 3.5
+					},
+					"vulnerable": {
+						"slices": [ 2,3 ],
+						"damageMultiplier": 1.5
+					}
+				}, 
+				{
+					"vulnerable": {
+						"slices": [ 2,3 ],
+						"damageMultiplier": 1.5
+					}
+				}
+			]
+
+		},
+		{
+			"sequenceName": "SmallQuickAttackRight",
+			"staminaCost": 15.0,
+			"monsterAnim": "SmallAttackRight",
+			"sequencePace": 0.5,
+			"sequenceBeats": [
+				{
+					"fadeAttack": {
+						"slices": [ 3 ],
+						"damage": 5.5
+					},
+					"vulnerable": {
+						"slices": [ 5,6 ],
+						"damageMultiplier": 1.5
+					}
+				},
+				{
+					"fadeAttack": {
+						"slices": [ 2,4 ],
+						"damage": 3.5
+					},
+					"vulnerable": {
+						"slices": [ 5,6 ],
+						"damageMultiplier": 1.5
+					}
+				}, 
+				{
+					"vulnerable": {
+						"slices": [ 5,6 ],
+						"damageMultiplier": 1.5
+					}
+				}
+			]
+
+		},
+		{
+			"sequenceName": "SmallQuickAttackUp",
+			"staminaCost": 15.0,
+			"monsterAnim": "SmallAttackUp",
+			"sequencePace": 0.5,
+			"sequenceBeats": [
+				{
+					"fadeAttack": {
+						"slices": [ 1 ],
+						"damage": 5.5
+					},
+					"vulnerable": {
+						"slices": [ 3,4,5 ],
+						"damageMultiplier": 1.5
+					}
+				},
+				{
+					"fadeAttack": {
+						"slices": [ 2, 6 ],
+						"damage": 3.5
+					},
+					"vulnerable": {
+						"slices": [ 3,4,5 ],
+						"damageMultiplier": 1.5
+					}
+				}, 
+				{
+					"vulnerable": {
+						"slices": [ 3,4,5 ],
+						"damageMultiplier": 1.5
+					}
+				}
+			]
+
+		},
+		{
+			"sequenceName": "MidRangeAttackLeft",
+			"staminaCost": 35.0,
+			"monsterAnim": "MidRangeAttack",
+			"sequencePace": 1,
+			"sequenceBeats": [
+				{
+					"fadeAttack": {
+						"slices": [ 5, 6 ],
+						"damage": 10.0
+					},
+					"vulnerable": {
+						"slices": [ 1, 4 ],
+						"damageMultiplier": 2.0
+					}
+				},
+				{
+					"fadeAttack": {
+						"slices": [ 1, 4 ],
+						"damage": 10.0
+					},
+					"vulnerable": {
+						"slices": [ 5, 6 ],
+						"damageMultiplier": 2.0
+					}
+				},
+				{
+					"fadeAttack": {
+						"slices": [ 1, 4, 5, 6 ],
+						"damage": 17.5
+					}
+				}
+
+			]
+
+		},
+		{
+			"sequenceName": "MidRangeAttackRight",
+			"staminaCost": 35.0,
+			"monsterAnim": "MidRangeAttack",
+			"sequencePace": 1,
+			"sequenceBeats": [
+				{
+					"fadeAttack": {
+						"slices": [ 2, 3 ],
+						"damage": 10.0
+					},
+					"vulnerable": {
+						"slices": [ 1, 4 ],
+						"damageMultiplier": 2.0
+					}
+				},
+				{
+					"fadeAttack": {
+						"slices": [ 1, 4 ],
+						"damage": 10.0
+					},
+					"vulnerable": {
+						"slices": [ 2, 3 ],
+						"damageMultiplier": 2.0
+					}
+				},
+				{
+					"fadeAttack": {
+						"slices": [ 1, 2, 3, 4 ],
+						"damage": 17.5
+					}
+				}
+			]
+		}
+	]
+}

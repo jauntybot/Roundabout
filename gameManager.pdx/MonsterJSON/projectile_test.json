@@ -1,0 +1,77 @@
+{
+	"monsterName": "Default Monster",
+	"hp" : 150.0,
+	"ringImages" : {
+		"fadeAttack" : {
+			"south" : {
+				"imagePath" : "Images/fadeAttackSouth.gif",
+				"speed" : 80,
+				"frames" : 12
+			},
+			"southWest": {
+				"imagePath" : "Images/fadeAttackSouthWest.gif",
+				"speed" : 80,
+				"frames" : 12
+			}
+		},
+		"vulnerable" :  {
+			"any" : {
+				"imagePath" : "Images/vulnerability.gif",
+				"speed" : 80,
+				"frames" : 6
+			}
+		},
+		"projectile" : {
+			"any" : {
+				"imagePath" : "Images/projectile.gif",
+				"speed" : 80,
+				"frames": 5
+			}
+		}
+	},
+	"attackSequences": [
+		{
+			"sequenceName": "smallQuickAttackLeft",
+			"staminaCost": 15.0,
+			"monsterAnim": "placeholderAnimName",
+			"sequencePace": 0.5,
+			"sequenceBeats": [
+				{
+					"projectile" : {
+						"slices": [1,3,5],
+						"pattern": "straightL"
+					}
+				}, 
+                {
+                    "projectile" : {
+                        "slices": [2,4,6],
+                        "pattern": "straightL"
+                    }
+                }, 
+                {
+                    "projectile" : {
+                    "slices": [1,3,5],
+                    "pattern": "straightL"
+                }}, 
+                {
+                    "projectile" : {
+                        "slices": [2,4,6],
+                        "pattern": "straightL"
+                    }
+                }, 
+                {
+                    "projectile" : {
+                        "slices": [1,3,5],
+                        "pattern": "straightL"
+                    }
+                }, 
+                {
+                    "projectile" : {
+                        "slices": [2,4,6],
+                        "pattern": "straightL"
+                    }
+                }
+			]
+		}
+	]
+}
