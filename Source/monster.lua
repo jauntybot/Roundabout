@@ -31,58 +31,87 @@ local function distance( x1, y1, x2, y2 )
 	return math.sqrt( (x2-x1)^2 + (y2-y1)^2 )
 end
 
-local function projectile(monster, sprite, slice, pattern, hero)
+local function projectile(monster, sprite, proj, i, s, hero)
 --spawn projectile, launch delay
     local p = {}
     p.img = AnimatedImage.new("Images/projectile.gif", {delay = 80, loop = true})
     p.pos = sprite.pos
     local dist = 16
-    --p.img:setPaused(false)
 
-    local _x = dist * math.cos((monster.battleRing.sliceAngle*(slice-1)-90)*3.14159/180) + monster.battleRing.center.x
-    local _y = dist * math.sin((monster.battleRing.sliceAngle*(slice-1)-90)*3.14159/180) + monster.battleRing.center.y
+    local rot = (monster.battleRing.sliceAngle*(s-1)-90)
+    if proj.patterns[i] == 'straightL' then rot -= 3 * monster.battleRing.sliceAngle/12 end
+    if proj.patterns[i] == 'straightR' then rot += 3 * monster.battleRing.sliceAngle/12 end
+    local _x = dist * math.cos(rot*3.14159/180) + monster.battleRing.center.x
+    local _y = dist * math.sin(rot*3.14159/180) + monster.battleRing.center.y
     p.pos = {x=_x, y=_y}
 
     table.insert(sprite.pool, #sprite.pool+1, p)
   
     for d=1,monster.launchDelay do coroutine.yield() end
--- straight pattern
-    -- local from = 16
-    -- local to = 170
-    -- for d=1,monster.travelTime do
-    --     dist = from+d/monster.travelTime*(to - from)
-    --     _x = dist * math.cos((monster.battleRing.sliceAngle*(sprite.slice-1)-90)*3.14159/180) + monster.battleRing.center.x
-    --     _y = dist * math.sin((monster.battleRing.sliceAngle*(sprite.slice-1)-90)*3.14159/180) + monster.battleRing.center.y
-    --     sprite.pos = {x=_x, y=_y}
-    --     coroutine.yield()
-    --     if (distance(_x, _y, hero.pos.x, hero.pos.y) < 14) then 
-    --         print('playerHit')
-    --         sprite.img:setPaused(true)
-    --         hero:takeDmg(monster.dmg)
-    --         return
-    --     end
-    -- end
 
--- spiral pattern
-    local from = 16
-    local to = 170
-    local fromRot = (monster.battleRing.sliceAngle*(slice-1)-90)
-    local toRot = fromRot + 180
-    local rot = fromRot
-    for d=1, monster.travelTime do
-        dist = from+d/monster.travelTime*(to - from)
-        rot = fromRot+d/monster.travelTime*(toRot - fromRot)
-        _x = dist * math.cos(rot*3.14159/180) + monster.battleRing.center.x
-        _y = dist * math.sin(rot*3.14159/180) + monster.battleRing.center.y
-        p.pos = {x=_x, y=_y}
-        coroutine.yield()
-        if (distance(_x, _y, hero.pos.x, hero.pos.y) < 14) then 
-            print('playerHit')
+    local hitPlayer = function()
+        if (distance(_x, _y, hero.pos.x, hero.pos.y) < 22) then
             p.img:setPaused(true)
             hero:takeDmg(monster.dmg)
-            return
+            return true
         end
     end
+    local patterns = {
+-- straight pattern
+        straight = function()
+            local from = 16
+            local to = 170
+            for d=1,monster.travelTime do
+                dist = from+d/monster.travelTime*(to - from)
+                _x = dist * math.cos(rot*3.14159/180) + monster.battleRing.center.x
+                _y = dist * math.sin(rot*3.14159/180) + monster.battleRing.center.y
+                p.pos = {x=_x, y=_y}
+                coroutine.yield()
+                if hitPlayer() then return end
+            end
+        end,
+
+-- spiral pattern
+        spiral = function()
+            local from = 16
+            local to = 170
+            local fromRot = (monster.battleRing.sliceAngle*(s-1)-90)
+            local toRot = fromRot + 180
+            for d=1, monster.travelTime do
+                dist = from+d/monster.travelTime*(to - from)
+                rot = fromRot+d/monster.travelTime*(toRot - fromRot)
+                _x = dist * math.cos(rot*3.14159/180) + monster.battleRing.center.x
+                _y = dist * math.sin(rot*3.14159/180) + monster.battleRing.center.y
+                p.pos = {x=_x, y=_y}
+                coroutine.yield()
+                if hitPlayer() then return end
+            end
+        end,
+
+-- sinusoidal pattern
+        sinusoidal = function()
+            local from = 16
+            local to = 170
+            local centerRot = (monster.battleRing.sliceAngle*(s-1)-90)
+            local amp = 0.5
+            local freq = 0.1
+            for d=1, monster.travelTime do
+                dist = from+d/monster.travelTime*(to - from)
+                rot = centerRot + (amp * math.sin(freq * d)) * monster.battleRing.sliceAngle
+                _x = dist * math.cos(rot*3.14159/180) + monster.battleRing.center.x
+                _y = dist * math.sin(rot*3.14159/180) + monster.battleRing.center.y
+                p.pos = {x=_x, y=_y}
+                coroutine.yield()
+                if hitPlayer() then return end
+            end
+        end
+    }
+
+    print (proj.patterns[i])
+    if proj.patterns[i] == 'straightL' or 'straightR' then coroutine.yield(patterns['straight']())
+    elseif proj.patterns[i] == 'spiralC' or 'spiralCC' then coroutine.yield(patterns['spiral']())
+    elseif proj.patterns[i] == 'sine' or 'cosine' then coroutine.yield(patterns['sinusoidal']()) end
+
     p.img:setPaused(true)
     table.remove(sprite.pool, 1)
 end
@@ -98,20 +127,27 @@ end
 
 
 local function attackSequence(monster, sequence, hero)
+    local centerSlice = hero.sector
     for b=1, #sequence do
         if sequence[b].fadeAttack ~= nil then
             for s=1, #sequence[b].fadeAttack.slices do
-                CoCreate(monster.sprites.fadeAttack[sequence[b].fadeAttack.slices[s]], "co", fadeAttack, monster, monster.sprites.fadeAttack[sequence[b].fadeAttack.slices[s]], hero)
+                local _s = centerSlice - sequence[b].fadeAttack.slices[s]
+                if _s > monster.battleRing.divisions then _s -= monster.battleRing.divisions elseif _s <= 0 then _s += monster.battleRing.divisions end
+                CoCreate(monster.sprites.fadeAttack[_s], "co", fadeAttack, monster, monster.sprites.fadeAttack[_s], hero)
             end
         end
         if sequence[b].projectile ~= nil then
             for s=1, #sequence[b].projectile.slices do
-                CoCreate(monster.sprites.projectile.co, #monster.sprites.projectile.co + 1, projectile, monster, monster.sprites.projectile, sequence[b].projectile.slices[s], sequence[b].projectile.pattern, hero)
+                local _s = centerSlice - sequence[b].projectile.slices[s]
+                if _s > monster.battleRing.divisions then _s -= monster.battleRing.divisions elseif _s <= 0 then _s += monster.battleRing.divisions end
+                CoCreate(monster.sprites.projectile.co, #monster.sprites.projectile.co + 1, projectile, monster, monster.sprites.projectile, sequence[b].projectile, s, _s, hero)
             end
         end
         if sequence[b].vulnerable ~= nil then
             for s=1, #sequence[b].vulnerable.slices do
-                CoCreate(monster.sprites.vulnerable[sequence[b].vulnerable.slices[s]], "co", vulnerableSlice, monster, monster.sprites.vulnerable[sequence[b].vulnerable.slices[s]], 60 * sequence.pace)
+                local _s = centerSlice - sequence[b].vulnerable.slices[s]
+                if _s > monster.battleRing.divisions then _s -= monster.battleRing.divisions elseif _s <= 0 then _s += monster.battleRing.divisions end
+                CoCreate(monster.sprites.vulnerable[_s], "co", vulnerableSlice, monster, monster.sprites.vulnerable[_s], 60 * sequence.pace)
             end
         end
 
@@ -222,6 +258,7 @@ function Monster:stopAttacking()
     end
     self.co.attackPattern = nil
     self.co.attack = nil
+    self.sprites.projectile.co = {}
 end
 
 function Monster:takeDmg(dmg, sector)

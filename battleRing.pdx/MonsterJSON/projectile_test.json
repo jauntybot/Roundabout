@@ -36,27 +36,18 @@
 			"monsterAnim": "placeholderAnimName",
 			"sequencePace": 0.5,
 			"sequenceBeats": [
+				{
+                    "projectile": {
+                        "slices": [-1, 1],
+                        "pattern": ["straightL", "straightR"]
+                    }
+                },
                 {
 					"fadeAttack" : {
 						"slices": [0],
 						"damage": 10
 					}
-				},
-				{
-                    "projectile": {
-                        "slices": [-1, 1],
-                        "patterns": ["straightL", "straightR"]
-                    },
-                    "vulnerable": {
-                        "slices": [-2, 2]
-                    }
-                },
-                {
-                    "vulnerable": {
-                        "slices": [-2, 2]
-                    }
-                }, 
-                {}
+				} 
                 
 			]
 		}
