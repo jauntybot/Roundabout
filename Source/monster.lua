@@ -109,7 +109,6 @@ local function projectile(monster, sprite, proj, i, s, hero)
         end
     }
 
-    print (proj.patterns[i])
     if proj.patterns[i] == 'straightL' or proj.patterns[i] == 'straightR' then coroutine.yield(patterns['straight']())
     elseif proj.patterns[i] == 'spiralC' or proj.patterns[i] == 'spiralCC' then coroutine.yield(patterns['spiral'](proj.patterns[i] == 'spiralCC'))
     elseif proj.patterns[i] == 'sine' or proj.patterns[i] == 'cosine' then coroutine.yield(patterns['sinusoidal'](proj.patterns[i] == 'cosine')) end
@@ -190,12 +189,12 @@ function Monster:init(battleRing, options)
             img = gfx.image.new("images/monster.png")
         },
         fadeAttack = {
-            {img = AnimatedImage.new("Images/fadeAttackSouth.gif", {delay = 80, loop = false}), flip = gfx.kImageFlippedY, duration = 1200 / (100 - 80), slice = 1},
-            {img = AnimatedImage.new("Images/fadeAttackSouthWest.gif", {delay = 80, loop = false}), flip = gfx.kImageFlippedXY, duration = 1200 / (100 - 80), slice = 2},
-            {img = AnimatedImage.new("Images/fadeAttackSouthWest.gif", {delay = 80, loop = false}), flip = gfx.kImageFlippedX, duration = 1200 / (100 - 80), slice = 3},
-            {img = AnimatedImage.new("Images/fadeAttackSouth.gif", {delay = 80, loop = false}), flip = gfx.kImageUnflipped, duration = 1200 / (100 - 80), slice = 4},
-            {img = AnimatedImage.new("Images/fadeAttackSouthWest.gif", {delay = 80, loop = false}), flip = gfx.kImageUnflipped, duration = 1200 / (100 - 80), slice = 5},
-            {img = AnimatedImage.new("Images/fadeAttackSouthWest.gif", {delay = 80, loop = false}), flip = gfx.kImageFlippedY, duration = 1200 / (100 - 80), slice = 6}
+            {img = AnimatedImage.new("Images/fadeAttackSouth.gif", {delay = 100, loop = false}), flip = gfx.kImageFlippedY, duration = 1200, slice = 1},
+            {img = AnimatedImage.new("Images/fadeAttackSouthWest.gif", {delay = 100, loop = false}), flip = gfx.kImageFlippedXY, duration = 1200, slice = 2},
+            {img = AnimatedImage.new("Images/fadeAttackSouthWest.gif", {delay = 100, loop = false}), flip = gfx.kImageFlippedX, duration = 1200, slice = 3},
+            {img = AnimatedImage.new("Images/fadeAttackSouth.gif", {delay = 100, loop = false}), flip = gfx.kImageUnflipped, duration = 1200, slice = 4},
+            {img = AnimatedImage.new("Images/fadeAttackSouthWest.gif", {delay = 100, loop = false}), flip = gfx.kImageUnflipped, duration = 1200, slice = 5},
+            {img = AnimatedImage.new("Images/fadeAttackSouthWest.gif", {delay = 100, loop = false}), flip = gfx.kImageFlippedY, duration = 1200, slice = 6}
         },
         projectile = {
             imgInit = {"Images/projectile.gif", {delay = 80, loop = true}}, pos = {x=0,y=0}, duration = 600 / (100 - 80),
@@ -212,7 +211,7 @@ function Monster:init(battleRing, options)
         }
     }
     self.launchDelay = 30
-    self.travelTime = 110
+    self.travelTime = 140
     assert(self.sprites.monster.img)
     for i=1,#self.sprites.fadeAttack do assert(self.sprites.fadeAttack[i].img) end
     for i=1, #self.sprites.projectile do assert(self.sprites.projectile[i].img) self.sprites.projectile[i].img:setPaused(true) end

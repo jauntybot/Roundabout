@@ -13,7 +13,10 @@ function Slider:init(options)
     self.center = options.center
     self.dimensions = options.dimensions
     self.background = options.background
-    
+    self.segmentSize = 4
+    self.segments = {}
+    self.comboPip = gfx.image.new("Images/comboPip.png")
+    assert(self.comboPip)
 end
 
 function Slider:draw(value, maxValue)
@@ -31,4 +34,24 @@ function Slider:draw(value, maxValue)
     gfx.setColor(gfx.kColorWhite)
     gfx.fillRect(self.center.x - self.dimensions.x/2, self.center.y - self.dimensions.y/2, (value/maxValue) * self.dimensions.x, self.dimensions.y)
 
+    if self.segments ~= nil then
+        gfx.setImageDrawMode(gfx.kDrawModeNXOR)
+        for key, seg in pairs(self.segments) do
+            local p = seg / maxValue
+            self.comboPip:drawCentered(self.center.x - self.dimensions.x/2 + p * self.dimensions.x, self.center.y)
+        end
+        gfx.setImageDrawMode(gfx.kDrawModeCopy)
+    end
+end
+
+function Slider:addSegment(value)
+    self.segments[#self.segments+1] = value
+end
+
+function Slider:clearSegment(index)
+    self.segments[index] = nil
+end
+
+function Slider:clearSegments(index)
+    self.segments = {}
 end
