@@ -101,6 +101,7 @@ local function attack(hero, target)
 
     hero.state = 'idle'
     hero:spriteAngle({paused = false, weaponDelay = 100, heroLoop = true, weaponLoop = true})
+    CoCreate(hero.co, "cooldown", cooldown, hero)
 end
 
 local function parryTiming(hero)
@@ -113,11 +114,13 @@ local function parryTiming(hero)
     if hero.state ~= 'attacking' then
         hero.state = 'idle'
         hero:spriteAngle({paused = false, weaponDelay = 100, heroLoop = true, weaponLoop = true})
+        CoCreate(hero.co, "cooldown", cooldown, hero)
     end
 end
 
 local function hop(hero, clockwise)
     hero.co.drift = nil
+    CoCreate(hero.co, "cooldown", cooldown, hero)
     
     local from = hero.crankProd
     local to = hero.crankProd - 15
@@ -302,11 +305,11 @@ function Hero:init(battleRing)
 -- crank input
         cranked = function(change, acceleratedChange) self:moveByCrank(change) end,
         upButtonDown = function() self:chargeAttack() end,
-        AButtonDown = function() self:chargeAttack() end,
+        BButtonDown = function() self:chargeAttack() end,
         upButtonUp = function() self:releaseAttack(self.battleRing.monster) end,
-        AButtonUp = function() self:releaseAttack(self.battleRing.monster) end,
+        BButtonUp = function() self:releaseAttack(self.battleRing.monster) end,
         downButtonDown = function() self:parry() end,
-        BButtonDown = function() self:parry() end
+        AButtonDown = function() self:parry() end
     }
 
     self:spriteAngle({})
@@ -317,7 +320,6 @@ function Hero:entrance()
 end
 
 function Hero:exit()
-    self.co.drift = nil
     CoCreate(self.co, 'exit', exitAnim, self)
 end
 
@@ -399,6 +401,7 @@ function Hero:moveByCrank(change)
 -- check if the player is moving between sectors and in which direction
     local clockwise = (self.crankProd - 90) % self.battleRing.sliceAngle >= self.battleRing.sliceAngle - 5
     if ((self.crankProd - 90) %self.battleRing.sliceAngle <= 5 or clockwise) and self.co.hop == nil and self.state == 'idle' then
+        self:addCooldown(self.moveCost)
         CoCreate(self.co, "hop", hop, self, clockwise)
     end
 end
@@ -409,10 +412,12 @@ function Hero:applyPosition()
     local prod = (self.crankProd+sectorAngle/2)/(6 * 10)
     prod = math.floor(prod) + 1
     if prod > 6 then prod = 1 end
-
+-- used for exitAnim
+    if self.battleRing.state ~= 'battling' then
+        if prod == 6 then prod = 5 end if prod == 1 then prod = 2 end if prod == 5 then prod = 2 end if prod == 2 then prod = 5 end if prod == 1 then prod = 4 end
+    end
 -- hero changes sectors
     if (prod ~= self.sector) and self.state ~= 'hopClockwise' and self.state ~= 'hopCounter' then
-        self:addCooldown(self.moveCost)
         self.sector = prod
         self:spriteAngle({})
     end
@@ -427,9 +432,6 @@ function Hero:update()
     if self.state ~= 'slain' then self:applyPosition() end
     for co,f in pairs(self.co) do
         if co~=nil then CoRun(self.co, co) end
-    end
-    if self.state == 'idle' and self.co.cooldown == nil and self.cooldown > 0 then
-        CoCreate(self.co, "cooldown", cooldown, self)
     end
 end
 

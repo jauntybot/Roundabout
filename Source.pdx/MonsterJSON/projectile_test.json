@@ -1,6 +1,6 @@
 {
 	"monsterName": "Default Monster",
-	"hp" : 150.0,
+	"hp" : 100.0,
 	"ringImages" : {
 		"fadeAttack" : {
 			"south" : {
@@ -36,29 +36,71 @@
 			"monsterAnim": "placeholderAnimName",
 			"sequencePace": 0.5,
 			"sequenceBeats": [
-                {
-					"fadeAttack" : {
-						"slices": [0],
-						"damage": 10
-					}
-				},
 				{
                     "projectile": {
                         "slices": [-1, 1],
                         "patterns": ["straightL", "straightR"]
                     },
                     "vulnerable": {
-                        "slices": [-2, 2]
+                        "slices": [-1, 1]
                     }
                 },
                 {
+					"fadeAttack" : {
+						"slices": [0],
+						"damage": 10
+					}
+				},
+                {
                     "vulnerable": {
-                        "slices": [-2, 2]
+                        "slices": [-1, 1]
                     }
                 }, 
                 {}
                 
 			]
-		}
+		},
+        {
+            "sequenceName": "spinSpank",
+			"staminaCost": 15.0,
+			"monsterAnim": "placeholderAnimName",
+			"sequencePace": 0.5,
+			"sequenceBeats": [
+                {
+                    "projectile":{
+                        "slices": [-1, 1],
+                        "patterns": ["spiralCC", "spiralC"]
+                    }
+                },
+                {
+                    "projectile":{
+                        "slices": [-2, 2],
+                        "patterns": ["spiralCC", "spiralC"]
+                    }
+                },
+                {}
+            ]
+        },
+        {
+            "sequenceName": "sineSwap",
+			"staminaCost": 15.0,
+			"monsterAnim": "placeholderAnimName",
+			"sequencePace": 0.5,
+			"sequenceBeats": [
+                {
+                    "projectile":{
+                        "slices": [-1, 1],
+                        "patterns": ["sine", "cosine"]
+                    }
+                },
+                {
+                    "projectile":{
+                        "slices": [0],
+                        "patterns": ["sine"]
+                    }
+                },
+                {}
+            ]
+        }
 	]
 }

@@ -2,6 +2,7 @@ import "hero"
 import "monster"
 import "Util/monsterLoader"
 import "uiSlider"
+import "uiManager"
 
 
 local function coroutineCreate(parent, co, f, p1, p2, p3, p4)
@@ -38,6 +39,8 @@ function BattleRing:init(gameManager)
         center = {x=56,y=166}, 
         dimensions = {x=72,y=16}
     }
+
+    --self.uiManager = UIManager()
     self.hpSlider = Slider(options)
     options.center = {x=56, y=208} options.title = "cooldown" options.titleTop = false
     self.cooldownSlider = Slider(options)

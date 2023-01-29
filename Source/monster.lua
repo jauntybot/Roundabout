@@ -72,11 +72,12 @@ local function projectile(monster, sprite, proj, i, s, hero)
         end,
 
 -- spiral pattern
-        spiral = function()
+        spiral = function(cc)
             local from = 16
             local to = 170
             local fromRot = (monster.battleRing.sliceAngle*(s-1)-90)
             local toRot = fromRot + 180
+            if cc then toRot = fromRot - 180 end
             for d=1, monster.travelTime do
                 dist = from+d/monster.travelTime*(to - from)
                 rot = fromRot+d/monster.travelTime*(toRot - fromRot)
@@ -89,7 +90,7 @@ local function projectile(monster, sprite, proj, i, s, hero)
         end,
 
 -- sinusoidal pattern
-        sinusoidal = function()
+        sinusoidal = function(cos)
             local from = 16
             local to = 170
             local centerRot = (monster.battleRing.sliceAngle*(s-1)-90)
@@ -98,6 +99,7 @@ local function projectile(monster, sprite, proj, i, s, hero)
             for d=1, monster.travelTime do
                 dist = from+d/monster.travelTime*(to - from)
                 rot = centerRot + (amp * math.sin(freq * d)) * monster.battleRing.sliceAngle
+                if cos then rot = centerRot + (amp * math.cos(freq * d)) * monster.battleRing.sliceAngle end
                 _x = dist * math.cos(rot*3.14159/180) + monster.battleRing.center.x
                 _y = dist * math.sin(rot*3.14159/180) + monster.battleRing.center.y
                 p.pos = {x=_x, y=_y}
@@ -108,9 +110,9 @@ local function projectile(monster, sprite, proj, i, s, hero)
     }
 
     print (proj.patterns[i])
-    if proj.patterns[i] == 'straightL' or 'straightR' then coroutine.yield(patterns['straight']())
-    elseif proj.patterns[i] == 'spiralC' or 'spiralCC' then coroutine.yield(patterns['spiral']())
-    elseif proj.patterns[i] == 'sine' or 'cosine' then coroutine.yield(patterns['sinusoidal']()) end
+    if proj.patterns[i] == 'straightL' or proj.patterns[i] == 'straightR' then coroutine.yield(patterns['straight']())
+    elseif proj.patterns[i] == 'spiralC' or proj.patterns[i] == 'spiralCC' then coroutine.yield(patterns['spiral'](proj.patterns[i] == 'spiralCC'))
+    elseif proj.patterns[i] == 'sine' or proj.patterns[i] == 'cosine' then coroutine.yield(patterns['sinusoidal'](proj.patterns[i] == 'cosine')) end
 
     p.img:setPaused(true)
     table.remove(sprite.pool, 1)
