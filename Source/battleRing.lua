@@ -30,22 +30,6 @@ class('BattleRing').extends()
 function BattleRing:init(gameManager)
 
     self.gameManager = gameManager
-    local options = {
-        title = "hp",
-        titleTop = true,
-        lineHeight = 1.2,
-        background = playdate.graphics.kColorWhite,
-        border = {width = 4},
-        center = {x=56,y=166}, 
-        dimensions = {x=72,y=16}
-    }
-
-    --self.uiManager = UIManager()
-    self.hpSlider = Slider(options)
-    options.center = {x=56, y=208} options.title = "cooldown" options.titleTop = false
-    self.cooldownSlider = Slider(options)
-    options.center = {x=56, y=96} options.title = "monster"
-    self.monsterSlider = Slider(options)
 
     self.center = {x=265,y=120}
     self.divisions = 6
@@ -63,7 +47,9 @@ function BattleRing:init(gameManager)
     }
 
     self.hero = Hero(self)
-    self.monster = Monster(self, LoadMonsterFromJSONFile('MonsterJSON/projectile_test.json'))
+    self.monster = Monster(self, LoadMonsterFromJSONFile('MonsterJSON/debug.json'))
+    
+    self.uiManager = UIManager(self.hero, self.monster)
     
     self.state = 'battling'
 
@@ -72,7 +58,7 @@ end
 
 function BattleRing:startBattle()
     coroutineCreate(self.co, 'battleStart', battleStartCutscene, self, self.hero, self.monster)
---    SoundManager:playBackgroundMusic()
+    SoundManager:playSong('Audio/battleLoop', 0.333)
 end
 
 function BattleRing:endBattle(win)
@@ -96,7 +82,7 @@ function BattleRing:update()
 
     self.hero:update()
     self.monster:update()
-    
+    self.uiManager:update()    
 end
 
 function BattleRing:draw()
@@ -107,7 +93,5 @@ function BattleRing:draw()
     self.hero:draw()
     if self.state == 'battling' then self.monster:drawTopAttacks() end
     self.ringLight:drawCentered(200, 120)
-    self.hpSlider:draw(self.hero.hp, self.hero.maxHP)
-    self.cooldownSlider:draw(self.hero.cooldown, self.hero.cooldownMax)
-    self.monsterSlider:draw(self.monster.hp, self.monster.maxHP)
+    self.uiManager:draw()
 end

@@ -66,8 +66,8 @@ function LoadMonsterFromJSONFile(path)
     local monster = {}
 
     monster.hp = jsonTable.hp
+    monster.name = jsonTable.monsterName
     monster.attackSequences = ParseAttackSequences(jsonTable.attackSequences)
-    --monster.attackPattern = jsonTable.AttackPattern
 
     return monster
 

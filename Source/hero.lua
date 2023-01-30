@@ -35,7 +35,7 @@ local function cooldown(hero)
         coroutine.yield()
     end
     hero.cooldown = 0 hero.moveSpeed = 1
-    hero.battleRing.cooldownSlider:clearSegments()
+    --hero.battleRing.cooldownSlider:clearSegments()
     hero.comboValues = {}
 end
 
@@ -74,12 +74,12 @@ local function chargeAttack(hero)
         coroutine.yield()
         if hero.attackCharge / hero.maxCharge > 0.333 and chargeLvl < 2 then 
             SoundManager:playSound(SoundManager.kSoundChargeWait) chargeLvl = 2
-            hero.battleRing.cooldownSlider:addSegment(hero.cooldown)
+            --hero.battleRing.cooldownSlider:addSegment(hero.cooldown)
             hero.comboValues[1] = hero.cooldown
         end
         if hero.attackCharge / hero.maxCharge > 0.666 and chargeLvl < 3 then 
             SoundManager:playSound(SoundManager.kSoundChargeWait) chargeLvl = 3 
-            hero.battleRing.cooldownSlider:addSegment(hero.cooldown)
+            --hero.battleRing.cooldownSlider:addSegment(hero.cooldown)
             hero.comboValues[2] = hero.cooldown
         end
     end
@@ -386,7 +386,7 @@ function Hero:chargeAttack()
                 self.state = 'attacking'
                 CoCreate(self.co, "attack", attack, self, self.battleRing.monster, true)
                 self.comboValues = {}
-                self.battleRing.cooldownSlider:clearSegments()
+                --self.battleRing.cooldownSlider:clearSegments()
             end
         end
     end
@@ -424,7 +424,6 @@ function Hero:moveByCrank(change)
         local to = self.crankProd + change/self.battleRing.divisions * self.moveSpeed
         local toSlice = math.floor((to+self.battleRing.sliceAngle/2)/ self.battleRing.sliceAngle) + 1
         local fromSlice = math.floor((self.crankProd+self.battleRing.sliceAngle/2)/ self.battleRing.sliceAngle) + 1
-        print (toSlice, fromSlice)
         if toSlice ~= fromSlice and self.state == 'idle' then 
             self:addCooldown(self.moveCost)
             CoCreate(self.co, "hop", hop, self, toSlice > fromSlice)
@@ -441,12 +440,6 @@ function Hero:moveByCrank(change)
     -- if (change ~= 0 and self.co.hop == nil and self.battleRing.state == 'battling') then
     --     CoCreate(self.co, "drift", prodDrift, self)
     -- end
-
--- check if the player is moving between sectors and in which direction
-    local clockwise = (self.crankProd - 90) % self.battleRing.sliceAngle >= self.battleRing.sliceAngle - 5
-    if ((self.crankProd - 90) %self.battleRing.sliceAngle <= 5 or clockwise) and self.co.hop == nil and self.state == 'idle' then
-
-    end
 end
 
 function Hero:applyPosition()

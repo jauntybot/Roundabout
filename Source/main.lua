@@ -31,7 +31,7 @@ local function setup()
 
     spec:watchMemory()
     spec:watchFPS()
-    
+    spec:toggle()
 end
 
 setup()
@@ -50,4 +50,8 @@ function playdate.update()
     end
 
     timer.updateTimers()
+end
+
+function playdate.leftButtonDown()
+    spec:toggle()
 end

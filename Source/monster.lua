@@ -10,21 +10,42 @@ local function entranceAnim(monster, delay)
     end
 end
 
-local function fadeAttack(monster, sprite, hero)
-    sprite.img:setPaused(true)
-    sprite.img:reset()
-    sprite.img:setPaused(false)
+local function tableFind(table, value)
+    for k, v in pairs(table) do
+        if v == value then
+            return k
+        end
+    end
+end
 
-    for d=1, sprite.duration - 20 do coroutine.yield() end
+local function fadeAttack(monster, sprite, hero, slice, origin)
+    local fade = {img = nil, flip = nil}
+    local path = sprite.imgs.southWestPath
+
+    if slice == 1 or slice == 4 then path = sprite.imgs.southPath end
+    fade.img = AnimatedImage.new(path, sprite.imgs.anim)
+    fade.flip = sprite.slice[slice].flip
+    
+    fade.img:reset()
+    fade.img:setPaused(false)
+
+
+    table.insert(sprite.pool, #sprite.pool+1, fade)
+    print ('tabled')
+    for d=1, sprite.imgs.duration - 20 do coroutine.yield() end
+    print ('yield')
     SoundManager:playSound(SoundManager.kSoundFadeAttack)
     for d=1, 10 do coroutine.yield() end
-    if (hero.sector == sprite.slice) then
+    print ('yielded')
+    if (hero.sector == slice) then
         if hero.state ~= 'parry' then
+            print('hero hit')
             hero:takeDmg(monster.dmg)
         else
             hero:parryHit(monster)
         end
     end
+    table.remove(sprite.pool, tableFind(sprite.pool, fade))
 end
 
 local function distance( x1, y1, x2, y2 )
@@ -34,8 +55,8 @@ end
 local function projectile(monster, sprite, proj, i, s, hero)
 --spawn projectile, launch delay
     local p = {}
-    p.img = AnimatedImage.new("Images/projectile.gif", {delay = 80, loop = true})
-    p.pos = sprite.pos
+    p.img = AnimatedImage.new(sprite.imgs.path, sprite.imgs.anim)
+    p.pos = {x = 0, y = 0}
     local dist = 16
 
     local rot = (monster.battleRing.sliceAngle*(s-1)-90)
@@ -114,7 +135,7 @@ local function projectile(monster, sprite, proj, i, s, hero)
     elseif proj.patterns[i] == 'sine' or proj.patterns[i] == 'cosine' then coroutine.yield(patterns['sinusoidal'](proj.patterns[i] == 'cosine')) end
 
     p.img:setPaused(true)
-    table.remove(sprite.pool, 1)
+    table.remove(sprite.pool, tableFind(sprite.pool, p))
 end
 
 local function vulnerableSlice(monster, sprite, duration)
@@ -134,7 +155,7 @@ local function attackSequence(monster, sequence, hero)
             for s=1, #sequence[b].fadeAttack.slices do
                 local _s = centerSlice - sequence[b].fadeAttack.slices[s]
                 if _s > monster.battleRing.divisions then _s -= monster.battleRing.divisions elseif _s <= 0 then _s += monster.battleRing.divisions end
-                CoCreate(monster.sprites.fadeAttack[_s], "co", fadeAttack, monster, monster.sprites.fadeAttack[_s], hero)
+                CoCreate(monster.sprites.fadeAttack.co, #monster.sprites.fadeAttack.co+1, fadeAttack, monster, monster.sprites.fadeAttack, hero, _s, centerSlice)
             end
         end
         if sequence[b].projectile ~= nil then
@@ -189,15 +210,29 @@ function Monster:init(battleRing, options)
             img = gfx.image.new("images/monster.png")
         },
         fadeAttack = {
-            {img = AnimatedImage.new("Images/fadeAttackSouth.gif", {delay = 100, loop = false}), flip = gfx.kImageFlippedY, duration = 1200, slice = 1},
-            {img = AnimatedImage.new("Images/fadeAttackSouthWest.gif", {delay = 100, loop = false}), flip = gfx.kImageFlippedXY, duration = 1200, slice = 2},
-            {img = AnimatedImage.new("Images/fadeAttackSouthWest.gif", {delay = 100, loop = false}), flip = gfx.kImageFlippedX, duration = 1200, slice = 3},
-            {img = AnimatedImage.new("Images/fadeAttackSouth.gif", {delay = 100, loop = false}), flip = gfx.kImageUnflipped, duration = 1200, slice = 4},
-            {img = AnimatedImage.new("Images/fadeAttackSouthWest.gif", {delay = 100, loop = false}), flip = gfx.kImageUnflipped, duration = 1200, slice = 5},
-            {img = AnimatedImage.new("Images/fadeAttackSouthWest.gif", {delay = 100, loop = false}), flip = gfx.kImageFlippedY, duration = 1200, slice = 6}
+            imgs = {   
+                southPath = "Images/fadeAttackSouth.gif",
+                southWestPath = "Images/fadeAttackSouthWest.gif",
+                anim = {delay = 100, loop = false},
+                duration = 1200
+            },
+            slice = {
+                {flip = gfx.kImageFlippedY},
+                {flip = gfx.kImageFlippedXY},
+                {flip = gfx.kImageFlippedX},
+                {flip = gfx.kImageUnflipped},
+                {flip = gfx.kImageUnflipped},
+                {flip = gfx.kImageFlippedY},
+            },
+            pool = {},
+            co = {}
         },
         projectile = {
-            imgInit = {"Images/projectile.gif", {delay = 80, loop = true}}, pos = {x=0,y=0}, duration = 600 / (100 - 80),
+            imgs = {
+                path = "Images/projectile.gif",
+                anim = {delay = 80, loop = true},
+                duration = 600 / (100 - 80)
+            },
             pool = {},
             co = {}
         },
@@ -224,6 +259,8 @@ function Monster:init(battleRing, options)
         local _y = 42 * math.sin((sectorAngle*(i-1)-90)*3.14159/180) + self.battleRing.center.y
         self.sprites.vulnerable[i].pos = {x=_x, y=_y}
     end
+
+    self.name = options.name
 
     self.pos = {x=265,y=-32}
     self.maxHP = options.hp or 100
@@ -291,9 +328,9 @@ end
 
 
 function Monster:drawAttacks()
-    for i, v in ipairs(self.sprites.fadeAttack) do
-        if not v.img:loopFinished() then
-            v.img:drawCentered(self.battleRing.center.x, self.battleRing.center.y, v.flip)
+    for i, a in ipairs(self.sprites.fadeAttack.pool) do
+        if not a.img:loopFinished() then
+            a.img:drawCentered(self.battleRing.center.x, self.battleRing.center.y, a.flip)
         end
     end
     for i, v in ipairs(self.sprites.vulnerable) do
@@ -315,8 +352,8 @@ function Monster:update()
     for co,f in pairs(self.co) do
         if f~=nil then CoRun(self.co, co) end
     end
-    for k,a in pairs(self.sprites.fadeAttack) do
-        if a.co~=nil then CoRun(a, "co") end
+    for k,a in pairs(self.sprites.fadeAttack.co) do
+        if a~=nil then CoRun(self.sprites.fadeAttack.co, k) end
     end
     for k,p in pairs(self.sprites.projectile.co) do
         if p~=nil then CoRun(self.sprites.projectile.co, k) end
