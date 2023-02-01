@@ -32,8 +32,11 @@ function SoundManager:stopSound(name)
 	self.sounds[name]:stop()
 end
 
+SoundManager.bgSong = nil
 
-function SoundManager:playBackgroundMusic()
-	local filePlayer = snd.fileplayer.new('Audio/sfx/rippleStar')
-	filePlayer:play(0) -- repeat forever
+function SoundManager:playSong(song, vol)
+	if SoundManager.bgSong ~= nil then SoundManager.bgSong:stop() end
+	SoundManager.bgSong = snd.fileplayer.new(song)
+	SoundManager.bgSong:setVolume(vol)
+	SoundManager.bgSong:play(0)
 end

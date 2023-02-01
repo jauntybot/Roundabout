@@ -35,6 +35,8 @@ local function cooldown(hero)
         coroutine.yield()
     end
     hero.cooldown = 0 hero.moveSpeed = 1
+    --hero.battleRing.cooldownSlider:clearSegments()
+    hero.comboValues = {}
 end
 
 local function prodDrift(hero)
@@ -70,33 +72,60 @@ local function chargeAttack(hero)
         hero:addCooldown(hero.chargeRate * hero.moveSpeed)
         hero.dist = from+hero.attackCharge/hero.maxCharge*(to - from)
         coroutine.yield()
-        if hero.attackCharge / hero.maxCharge > 0.333 and chargeLvl < 2 then SoundManager:playSound(SoundManager.kSoundChargeWait) chargeLvl = 2 end
-        if hero.attackCharge / hero.maxCharge > 0.666 and chargeLvl < 3 then SoundManager:playSound(SoundManager.kSoundChargeWait) chargeLvl = 3 end
+        if hero.attackCharge / hero.maxCharge > 0.333 and chargeLvl < 2 then 
+            SoundManager:playSound(SoundManager.kSoundChargeWait) chargeLvl = 2
+            --hero.battleRing.cooldownSlider:addSegment(hero.cooldown)
+            hero.comboValues[1] = hero.cooldown
+        end
+        if hero.attackCharge / hero.maxCharge > 0.666 and chargeLvl < 3 then 
+            SoundManager:playSound(SoundManager.kSoundChargeWait) chargeLvl = 3 
+            --hero.battleRing.cooldownSlider:addSegment(hero.cooldown)
+            hero.comboValues[2] = hero.cooldown
+        end
     end
     SoundManager:playSound(SoundManager.kSoundChargePeak)
 end
 
-local function attack(hero, target)
+local function attack(hero, target, combo)
+    if combo then
+        hero.co.cooldown = nil
+        local to = hero.weaponRange
+        local from = hero.dist
+        for i=1, 15 do
+            hero.dist = from + i/15 * (to - from)
+            coroutine.yield()
+        end
+    end
+
     hero:addCooldown(hero.attackCost)
     hero.state = 'attacking'
 
     hero:spriteAngle({paused = false, heroLoop = false, weaponLoop = false})
     SoundManager:playSound(SoundManager.kSoundHeroSwipe)
-    target:takeDmg(hero.attackDmg + hero.attackCharge, hero.sector)
+
+    if hero.dist <= hero.weaponRange then
+        target:takeDmg(hero.attackDmg + hero.attackCharge, hero.sector)
+    end
     hero.moveSpeed = 1
     hero.attackCharge = 0
 
-    
+    for d=1, 15 do coroutine.yield() end
+
     local to = hero.moveDist
     local from = hero.dist
-    for f=1,hero.sprites.weapon.loops.attacking.duration do
+    local prev = hero.cooldown
+
+    hero.state = 'idle'
+    CoCreate(hero.co, "cooldown", cooldown, hero)
+
+    while hero.cooldown > 0 do
         if to ~= from then
-            hero.dist = from+f/hero.sprites.weapon.loops[hero.state].duration*(to - from)
+            hero.dist = from+(1-hero.cooldown/prev)*(to - from)
         end
         coroutine.yield()
     end
 
-    hero.state = 'idle'
+
     hero:spriteAngle({paused = false, weaponDelay = 100, heroLoop = true, weaponLoop = true})
 end
 
@@ -110,11 +139,13 @@ local function parryTiming(hero)
     if hero.state ~= 'attacking' then
         hero.state = 'idle'
         hero:spriteAngle({paused = false, weaponDelay = 100, heroLoop = true, weaponLoop = true})
+        CoCreate(hero.co, "cooldown", cooldown, hero)
     end
 end
 
 local function hop(hero, clockwise)
     hero.co.drift = nil
+    CoCreate(hero.co, "cooldown", cooldown, hero)
     
     local from = hero.crankProd
     local to = hero.crankProd - 15
@@ -145,6 +176,14 @@ local function damageFrames(img)
     end
 end
 
+local function deathAnim(hero)
+    hero:spriteAngle({state = 'deathSpiral', slice = 1})
+    while not hero.sprites.hero.img:loopFinished() do
+        coroutine.yield()
+    end
+    hero:spriteAngle({state = 'slain', heroLoop = true, heroDelay = 100})
+end
+
 class('Hero').extends()
 
 
@@ -168,7 +207,7 @@ function Hero:init(battleRing)
 
     self.sprites = {
         hero = {
-            img = AnimatedImage.new("Images/sprite-PC.gif", {delay = 100, loop = true}),
+            img = AnimatedImage.new("Images/hero-sprite.gif", {delay = 100, loop = true}),
             loops = {
                 idle = {
                     {frames = {19, 24}, flip = gfx.kImageUnflipped},
@@ -203,8 +242,11 @@ function Hero:init(battleRing)
                     {frames = {60, 64}, flip = gfx.kImageUnflipped},
                     {frames = {65, 69}, flip = gfx.kImageUnflipped}
                 },
+                deathSpiral = {
+                    {frames = {75, 87}, flip = gfx.kImageUnflipped}
+                },
                 slain = {
-                    {frames = {75, 75}, fliip = gfx.kImageUnflipped}
+                    {frames = {88, 99}, flip = gfx.kImageUnflipped}
                 }
             }
         },
@@ -227,6 +269,9 @@ function Hero:init(battleRing)
                     {frames = {30, 34}, flip = gfx.kImageUnflipped, topSort = false},
                     {frames = {35, 39}, flip = gfx.kImageUnflipped, topSort = true},
                     speed = 50, frames = 5, duration = 15
+                },
+                slain = {
+                    {frames = {60, 60}, flip = gfx.kImageUnflipped, topSort = false},
                 }
             }
         }
@@ -237,7 +282,7 @@ function Hero:init(battleRing)
     self.sprites.weapon.loops.hopClockwise = self.sprites.weapon.loops.idle
     self.sprites.weapon.loops.hopCounter = self.sprites.weapon.loops.idle
     self.sprites.weapon.loops.parry = self.sprites.weapon.loops.attacking
-    self.sprites.weapon.loops.slain = self.sprites.weapon.loops.idle
+    self.sprites.weapon.loops.deathSpiral = self.sprites.weapon.loops.slain
 
     self.pos = {x=self.battleRing.center.x,y=170}
     self.sector = 4
@@ -253,6 +298,7 @@ function Hero:init(battleRing)
     self.attackDist = 32
     self.attackSpeed = 20
     self.attackDmg = 5
+    self.weaponRange = 56
 
     self.chargeRate = 0.15
     self.maxCharge = 10
@@ -272,6 +318,7 @@ function Hero:init(battleRing)
     self.cooldownRate = 1
     self.cooldown = 0
     self.cooldownMax = 30
+    self.comboValues = {}
 
     self.parryDelay = 15
 
@@ -284,8 +331,11 @@ function Hero:init(battleRing)
 -- crank input
         cranked = function(change, acceleratedChange) self:moveByCrank(change) end,
         upButtonDown = function() self:chargeAttack() end,
+        BButtonDown = function() self:chargeAttack() end,
         upButtonUp = function() self:releaseAttack(self.battleRing.monster) end,
-        downButtonDown = function() self:parry() end
+        BButtonUp = function() self:releaseAttack(self.battleRing.monster) end,
+        downButtonDown = function() self:parry() end,
+        AButtonDown = function() self:parry() end
     }
 
     self:spriteAngle({})
@@ -296,7 +346,6 @@ function Hero:entrance()
 end
 
 function Hero:exit()
-    self.co.drift = nil
     CoCreate(self.co, 'exit', exitAnim, self)
 end
 
@@ -304,8 +353,7 @@ function Hero:slain()
     self.co = {}
     self.state = 'slain'
     self.sector = 1
-    self:spriteAngle({slice = 1, paused = true})
-
+    CoCreate(self.co, 'deathAnim', deathAnim, self)
 end
 
 function Hero:addCooldown(value)
@@ -332,6 +380,15 @@ function Hero:chargeAttack()
         self.co.regen = nil
         self.co.drift = nil
         CoCreate(self.co, "charge", chargeAttack, self)
+    elseif self.comboValues ~= nil then
+        for key, value in pairs(self.comboValues) do
+            if self.cooldown <= value + 1 and self.cooldown >= value - 1 then
+                self.state = 'attacking'
+                CoCreate(self.co, "attack", attack, self, self.battleRing.monster, true)
+                self.comboValues = {}
+                --self.battleRing.cooldownSlider:clearSegments()
+            end
+        end
     end
 end
 
@@ -345,8 +402,7 @@ function Hero:releaseAttack(target)
 end
 
 function Hero:parry()
--- if the hero is able to initiate a new action
-    if self.cooldown <= 0 then
+    if (self.cooldown <= 0) then
         self.co.charge = nil
         self.co.regen = nil
         self.co.drift = nil
@@ -357,7 +413,7 @@ end
 
 function Hero:parryHit(target)
     self:addCooldown(self.parryCost)
-    CoCreate(self.co, "attack", attack, self, target)
+    CoCreate(self.co, "attack", attack, self, target, true)
     SoundManager:playSound(SoundManager.kSoundPerfectGuard)
 end
 
@@ -365,35 +421,39 @@ end
 function Hero:moveByCrank(change)
 -- apply crank delta to stored crank product var at a ratio of 180 to 1 slice if not hopping
     if self.co.hop == nil then
-        self.crankProd += change/(self.battleRing.divisions) * self.moveSpeed
+        local to = self.crankProd + change/self.battleRing.divisions * self.moveSpeed
+        local toSlice = math.floor((to+self.battleRing.sliceAngle/2)/ self.battleRing.sliceAngle) + 1
+        local fromSlice = math.floor((self.crankProd+self.battleRing.sliceAngle/2)/ self.battleRing.sliceAngle) + 1
+        if toSlice ~= fromSlice and self.state == 'idle' then 
+            self:addCooldown(self.moveCost)
+            CoCreate(self.co, "hop", hop, self, toSlice > fromSlice)
+        else
+            self.crankProd += change/(self.battleRing.divisions) * self.moveSpeed
 -- wrap our product inside the bounds of 0-360
-        if self.crankProd > 360 then
-            self.crankProd -= 360
-        elseif self.crankProd < 0 then
-            self.crankProd += 360
+            if self.crankProd > 360 then
+                self.crankProd -= 360
+            elseif self.crankProd < 0 then
+                self.crankProd += 360
+            end
         end
     end
     -- if (change ~= 0 and self.co.hop == nil and self.battleRing.state == 'battling') then
     --     CoCreate(self.co, "drift", prodDrift, self)
     -- end
-
--- check if the player is moving between sectors and in which direction
-    local clockwise = (self.crankProd - 90) % self.battleRing.sliceAngle >= self.battleRing.sliceAngle - 5
-    if ((self.crankProd - 90) %self.battleRing.sliceAngle <= 5 or clockwise) and self.co.hop == nil and self.state == 'idle' then
-        CoCreate(self.co, "hop", hop, self, clockwise)
-    end
 end
 
 function Hero:applyPosition()
 -- calculate what sector hero is in
-    local sectorAngle = 60
-    local prod = (self.crankProd+sectorAngle/2)/(6 * 10)
+    local prod = (self.crankProd+self.battleRing.sliceAngle/2)/ self.battleRing.sliceAngle
     prod = math.floor(prod) + 1
     if prod > 6 then prod = 1 end
-
+-- used for exitAnim
+    if self.battleRing.state ~= 'battling' then
+        if prod == 6 then prod = 5 elseif prod == 1 then prod = 2 elseif prod == 5 then prod = 2 elseif prod == 2 then prod = 5 elseif prod == 1 then prod = 4 end
+    end
 -- hero changes sectors
     if (prod ~= self.sector) and self.state ~= 'hopClockwise' and self.state ~= 'hopCounter' then
-        self:addCooldown(self.moveCost)
+        if self.state == 'attacking' then self:addCooldown(self.moveCost) end
         self.sector = prod
         self:spriteAngle({})
     end
@@ -408,9 +468,6 @@ function Hero:update()
     if self.state ~= 'slain' then self:applyPosition() end
     for co,f in pairs(self.co) do
         if co~=nil then CoRun(self.co, co) end
-    end
-    if self.state == 'idle' and self.co.cooldown == nil and self.cooldown > 0 then
-        CoCreate(self.co, "cooldown", cooldown, self)
     end
 end
 

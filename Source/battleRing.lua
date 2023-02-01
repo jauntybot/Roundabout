@@ -2,6 +2,7 @@ import "hero"
 import "monster"
 import "Util/monsterLoader"
 import "uiSlider"
+import "uiManager"
 
 
 local function coroutineCreate(parent, co, f, p1, p2, p3, p4)
@@ -29,20 +30,6 @@ class('BattleRing').extends()
 function BattleRing:init(gameManager)
 
     self.gameManager = gameManager
-    local options = {
-        title = "hp",
-        titleTop = true,
-        lineHeight = 1.2,
-        background = playdate.graphics.kColorWhite,
-        border = {width = 4},
-        center = {x=56,y=166}, 
-        dimensions = {x=72,y=16}
-    }
-    self.hpSlider = Slider(options)
-    options.center = {x=56, y=208} options.title = "cooldown" options.titleTop = false
-    self.cooldownSlider = Slider(options)
-    options.center = {x=56, y=96} options.title = "monster"
-    self.monsterSlider = Slider(options)
 
     self.center = {x=265,y=120}
     self.divisions = 6
@@ -50,7 +37,9 @@ function BattleRing:init(gameManager)
 
     self.divisionsImage = playdate.graphics.image.new("Images/divisions.png")
     assert(self.divisionsImage)
-    self.bgImage = AnimatedImage.new("Images/BG-1-dither.gif", {delay = 100, loop = true})
+    self.ringLight = AnimatedImage.new("Images/BG-1-dither.gif", {delay = 100, loop = true})
+    assert(self.ringLight)
+    self.bgImage = playdate.graphics.image.new("Images/Roundabout-BG-brick.png")
     assert(self.bgImage)
 
     self.co = {
@@ -58,7 +47,9 @@ function BattleRing:init(gameManager)
     }
 
     self.hero = Hero(self)
-    self.monster = Monster(self, LoadMonsterFromJSONFile('MonsterJSON/monster_default.json'))
+    self.monster = Monster(self, LoadMonsterFromJSONFile('MonsterJSON/debug.json'))
+    
+    self.uiManager = UIManager(self.hero, self.monster)
     
     self.state = 'battling'
 
@@ -67,7 +58,7 @@ end
 
 function BattleRing:startBattle()
     coroutineCreate(self.co, 'battleStart', battleStartCutscene, self, self.hero, self.monster)
---    SoundManager:playBackgroundMusic()
+    SoundManager:playSong('Audio/battleLoop', 0.333)
 end
 
 function BattleRing:endBattle(win)
@@ -91,17 +82,16 @@ function BattleRing:update()
 
     self.hero:update()
     self.monster:update()
-    
+    self.uiManager:update()    
 end
 
 function BattleRing:draw()
+    self.bgImage:drawCentered(200, 120)
     if self.state == 'battling' then self.monster:drawAttacks() end
     self.divisionsImage:drawCentered(self.center.x, self.center.y)
     self.monster.sprites.monster.img:drawCentered(self.monster.pos.x, self.monster.pos.y)
     self.hero:draw()
     if self.state == 'battling' then self.monster:drawTopAttacks() end
-    self.bgImage:drawCentered(200, 120)
-    self.hpSlider:draw(self.hero.hp, self.hero.maxHP)
-    self.cooldownSlider:draw(self.hero.cooldown, self.hero.cooldownMax)
-    self.monsterSlider:draw(self.monster.hp, self.monster.maxHP)
+    self.ringLight:drawCentered(200, 120)
+    self.uiManager:draw()
 end

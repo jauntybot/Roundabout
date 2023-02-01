@@ -11,7 +11,11 @@ function GameManager:displayStartScreen()
     playdate.inputHandlers.pop()
     playdate.inputHandlers.push(self.inputHandlers.startMenu)
 
-    self.battleRing = nil
+    if (self.battleRing ~= nil) then
+        self.battleRing.uiManager:pop()
+        self.battleRing = nil
+    end
+    playdate.graphics.clear()
 end
 
 function GameManager:init()

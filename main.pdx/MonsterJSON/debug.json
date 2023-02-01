@@ -1,0 +1,70 @@
+{
+	"monsterName": "debyg",
+	"hp" : 150.0,
+	"ringImages" : {
+		"fadeAttack" : {
+			"south" : {
+				"imagePath" : "Images/fadeAttackSouth.gif",
+				"speed" : 80,
+				"frames" : 12
+			},
+			"southWest": {
+				"imagePath" : "Images/fadeAttackSouthWest.gif",
+				"speed" : 80,
+				"frames" : 12
+			}
+		},
+		"vulnerable" :  {
+			"any" : {
+				"imagePath" : "Images/vulnerability.gif",
+				"speed" : 80,
+				"frames" : 6
+			}
+		},
+		"projectile" : {
+			"any" : {
+				"imagePath" : "Images/projectile.gif",
+				"speed" : 80,
+				"frames": 5
+			}
+		}
+	},
+	"attackPatterns": [
+		{
+			"stages": [
+				[ 1, 1, 1],
+				[ 1, 1, 2],
+				[ 1, 2, 1]
+			]
+		},
+		{
+			"stages": [
+				[ 1, 2, 2],
+				[ 2, 2, 2, 2],
+				[ 2, 3, 2],
+				[ 1, 2, 2, 3]
+			]
+		}
+	],
+	"attackSequences": [
+		{
+			"sequenceName": "smallQuickAttackLeft",
+			"stage": 1,
+			"staminaCost": 15.0,
+			"monsterAnim": "placeholderAnimName",
+			"sequencePace": 0.5,
+			"sequenceBeats": [
+				{
+					"fadeAttack": {
+						"slices": [ 0 ],
+						"damage": 5.5
+					},
+					"vulnerable": {
+						"slices": [ -2,2 ],
+						"damageMultiplier": 1.5
+					}
+				}
+            ]
+		}
+	]
+}
