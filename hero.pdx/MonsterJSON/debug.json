@@ -57,22 +57,13 @@
 				{
 					"fadeAttack": {
 						"slices": [ 0 ],
-						"speed": 0.5,
 						"damage": 5.5
 					},
 					"vulnerable": {
 						"slices": [ -2,2 ],
 						"damageMultiplier": 1.5
 					}
-				}, {}, 
-				{
-					"projectile": {
-						"slices": [ 0 ],
-						"speed": 0.5,
-						"patterns": ["sine"]
-					}
-				},
-				{}, {}
+				}, {}, {}, {}, {}
             ]
 		}
 	]

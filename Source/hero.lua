@@ -413,7 +413,7 @@ end
 
 function Hero:parryHit(target)
     self:addCooldown(self.parryCost)
-    CoCreate(self.co, "attack", attack, self, target)
+    CoCreate(self.co, "attack", attack, self, target, true)
     SoundManager:playSound(SoundManager.kSoundPerfectGuard)
 end
 

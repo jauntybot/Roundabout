@@ -37,7 +37,10 @@ function ParseAttackSequences(jsonTable)
         for b=1, #jsonTable[s].sequenceBeats do
             local beat = {}
             for key,a in pairs(jsonTable[s].sequenceBeats[b]) do
-                beat[key] = {} beat[key].slices = {} 
+                beat[key] = {
+                    slices = {},
+                    speed = a.speed
+                }
                 for i=1, #a.slices do
                     beat[key].slices[i] = a.slices[i]
                 end
