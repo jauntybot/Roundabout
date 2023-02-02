@@ -1,5 +1,5 @@
 {
-	"monsterName": "Flyswatter EX",
+	"monsterName": "flyswatter ex",
 	"hp" : 100.0,
 	"ringImages" : {
 		"fadeAttack" : {
@@ -44,6 +44,7 @@
                     },
                     "projectile" : {
 						"slices": [0],
+                        "speed" : 1.0,
                         "patterns": ["straightR"]
 					}
                 },
@@ -55,6 +56,7 @@
 					},
                     "projectile" : {
 						"slices": [1, -1],
+                        "speed" : 1.0,
                         "patterns": ["straightL", "straightL", "straightL"]
 					}
 				},
@@ -66,10 +68,12 @@
 					},
                     "projectile" : {
 						"slices": [-1, 1],
+                        "speed" : 1.0,
                         "patterns": ["straightR", "straightR"]
 					},
                     "vulnerable": {
-                        "slices": [0]
+                        "slices": [0],
+                        "speed" : 1.0
                     }
                 }, 
                 {
@@ -80,10 +84,12 @@
 					},
                     "projectile" : {
 						"slices": [0],
+                        "speed" : 1.0,
                         "patterns": ["cosine"]
 					},
                     "vulnerable": {
-                        "slices": [0]
+                        "slices": [0],
+                        "speed" : 1.0
                     }
 				}
                 
@@ -103,6 +109,7 @@
                     },
                     "projectile" : {
 						"slices": [0],
+                        "speed" : 1.0,
                         "patterns": ["straightL"]
 					}
                 },
@@ -114,6 +121,7 @@
 					},
                     "projectile" : {
 						"slices": [1, -1],
+                        "speed" : 1.0,
                         "patterns": ["straightR", "straightR"]
 					}
 				},
@@ -125,10 +133,12 @@
 					},
                     "projectile" : {
 						"slices": [-1, 1],
+                        "speed" : 1.0,
                         "patterns": ["straightL", "straightL"]
 					},
                     "vulnerable": {
-                        "slices": [0]
+                        "slices": [0],
+                        "speed" : 1.0
                     }
                 }, 
                 {
@@ -139,10 +149,12 @@
 					},
                     "projectile" : {
 						"slices": [0],
+                        "speed" : 1.0,
                         "patterns": ["sine"]
 					},
                     "vulnerable": {
-                        "slices": [0]
+                        "slices": [0],
+                        "speed" : 1.0
                     }
 				}
                 
@@ -162,6 +174,7 @@
                     },
                     "projectile" : {
 						"slices": [0, -1],
+                        "speed" : 1.0,
                         "patterns": ["sine", "cosine"]
 					}
                 },
@@ -173,10 +186,12 @@
                     },
                     "projectile" : {
 						"slices": [1, 0, -1],
+                        "speed" : 1.0,
                         "patterns": ["cosine", "sine", "cosine"]
 					},
                     "vulnerable": {
-                        "slices": [0]
+                        "slices": [0],
+                        "speed" : 1.0
                     }
                 },
 				{
@@ -186,7 +201,8 @@
 						"damage": 10
                     },
 					"vulnerable": {
-                        "slices": [0]
+                        "slices": [0],
+                        "speed" : 1.0
                     }
                 },
                 {}
@@ -206,6 +222,7 @@
                     },
                     "projectile" : {
 						"slices": [0, 1],
+                        "speed" : 1.0,
                         "patterns": ["cosine", "sine"]
 					}
                 },
@@ -217,10 +234,12 @@
                     },
                     "projectile" : {
 						"slices": [1, 0, -1],
+                        "speed" : 1.0,
                         "patterns": ["cosine", "sine", "cosine"]
 					},
                     "vulnerable": {
-                        "slices": [0]
+                        "slices": [0],
+                        "speed" : 1.0
                     }
                 },
 				{
@@ -230,7 +249,8 @@
 						"damage": 10
                     },
 					"vulnerable": {
-                        "slices": [0]
+                        "slices": [0],
+                        "speed" : 1.0
                     }
                 },
                 {}
@@ -250,10 +270,12 @@
                     },
                     "projectile" : {
 						"slices": [-2],
+                        "speed" : 1.0,
                         "patterns": ["spiralCC"]
 					},
 					"vulnerable": {
-                        "slices": [3]
+                        "slices": [3],
+                        "speed" : 1.0
                     }
                 },
                 {
@@ -264,10 +286,12 @@
                     },
                     "projectile" : {
 						"slices": [-1],
+                        "speed" : 1.0,
                         "patterns": ["spiralCC"]
 					},
 					"vulnerable": {
-                        "slices": [-2]
+                        "slices": [-2],
+                        "speed" : 1.0
                     }
                 },
                 {
@@ -278,10 +302,12 @@
                     },
                     "projectile" : {
 						"slices": [0],
+                        "speed" : 1.0,
                         "patterns": ["spiralCC"]
 					},
 					"vulnerable": {
-                        "slices": [-1]
+                        "slices": [-1],
+                        "speed" : 1.0
                     }
                 },
                 {
@@ -292,10 +318,12 @@
                     },
                     "projectile" : {
 						"slices": [2, -2],
+                        "speed" : 1.0,
                         "patterns": ["spiralCC", "spiralC"]
 					},
 					"vulnerable": {
-                        "slices": [0]
+                        "slices": [0],
+                        "speed" : 1.0
                     }
                 }
             ]
@@ -314,10 +342,12 @@
                     },
                     "projectile" : {
 						"slices": [2],
+                        "speed" : 1.0,
                         "patterns": ["spiralC"]
 					},
 					"vulnerable": {
-                        "slices": [3]
+                        "slices": [3],
+                        "speed" : 1.0
                     }
                 },
                 {
@@ -328,10 +358,12 @@
                     },
                     "projectile" : {
 						"slices": [1],
+                        "speed" : 1.0,
                         "patterns": ["spiralC"]
 					},
 					"vulnerable": {
-                        "slices": [2]
+                        "slices": [2],
+                        "speed" : 1.0
                     }
                 },
                 {
@@ -342,10 +374,12 @@
                     },
                     "projectile" : {
 						"slices": [0],
+                        "speed" : 1.0,
                         "patterns": ["spiralC"]
 					},
 					"vulnerable": {
-                        "slices": [1]
+                        "slices": [1],
+                        "speed" : 1.0
                     }
                 },
                 {
@@ -356,10 +390,12 @@
                     },
                     "projectile" : {
 						"slices": [2, -2],
+                        "speed" : 1.0,
                         "patterns": ["spiralCC", "spiralC"]
 					},
 					"vulnerable": {
-                        "slices": [0]
+                        "slices": [0],
+                        "speed" : 1.0
                     }
                 }
             ]

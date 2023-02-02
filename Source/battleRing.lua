@@ -27,7 +27,7 @@ end
 
 class('BattleRing').extends()
 
-function BattleRing:init(gameManager)
+function BattleRing:init(gameManager, monsterPath)
 
     self.gameManager = gameManager
 
@@ -47,7 +47,7 @@ function BattleRing:init(gameManager)
     }
 
     self.hero = Hero(self)
-    self.monster = Monster(self, LoadMonsterFromJSONFile('MonsterJSON/monster_default.json'))
+    self.monster = Monster(self, LoadMonsterFromJSONFile(monsterPath))
     
     self.uiManager = UIManager(self.hero, self.monster)
     

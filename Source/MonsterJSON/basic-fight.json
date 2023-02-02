@@ -1,5 +1,5 @@
 {
-	"monsterName": "Flyswatter",
+	"monsterName": "flyswatter",
 	"hp" : 100.0,
 	"ringImages" : {
 		"fadeAttack" : {

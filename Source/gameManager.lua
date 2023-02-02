@@ -7,7 +7,8 @@ class ('GameManager').extends()
 
 function GameManager:displayStartScreen()
     gmSpec:clear()
-    gmSpec:print("press UP to start.")
+    gmSpec:print("press up for basic fight.")
+    gmSpec:print("press down for advanced fight.")
     playdate.inputHandlers.pop()
     playdate.inputHandlers.push(self.inputHandlers.startMenu)
 
@@ -27,7 +28,11 @@ function GameManager:init()
     self.inputHandlers = {
         startMenu = {
             upButtonDown = function()
-                self:displayBattleState()
+                self:displayBattleState('monsterJSON/basic-fight.json')
+                self.state = 'battling'
+            end,
+            downButtonDown = function()
+                self:displayBattleState('monsterJSON/advanced-fight.json')
                 self.state = 'battling'
             end
         },
@@ -43,12 +48,12 @@ function GameManager:init()
     self:displayStartScreen()
 end
 
-function GameManager:displayBattleState()
+function GameManager:displayBattleState(monsterPath)
     
     gmSpec:clear()
     playdate.inputHandlers.pop()
 
-    self.battleRing = BattleRing(self)
+    self.battleRing = BattleRing(self, monsterPath)
     self.battleRing:startBattle()
 end
 
@@ -73,5 +78,5 @@ function GameManager:update()
         self.battleRing:update()
         self.battleRing:draw()
     end
-    gmSpec:draw(200,112)
+    gmSpec:draw(150,80)
 end
