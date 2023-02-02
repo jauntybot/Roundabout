@@ -289,14 +289,18 @@ function Monster:startAttacking(hero)
 end
 
 function Monster:stopAttacking()
-    for k,a in pairs(self.sprites.fadeAttack) do a.img:setFrame(a.img.image_table:getLength() + 1) end
+    
+    for k,a in pairs(self.sprites.fadeAttack.pool) do a.img:setFrame(a.img.image_table:getLength() + 1) end
+    print('call to function')
     for k,sect in ipairs(self.sprites.vulnerable) do
         sect.img:reset()
         sect.img:setPaused(true)
     end
+    print('call to function')
     self.co.attackPattern = nil
     self.co.attack = nil
     self.sprites.projectile.co = {}
+    self.sprites.fadeAttack.co = {}
 end
 
 function Monster:takeDmg(dmg, sector)

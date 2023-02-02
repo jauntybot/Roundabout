@@ -47,7 +47,7 @@ function BattleRing:init(gameManager)
     }
 
     self.hero = Hero(self)
-    self.monster = Monster(self, LoadMonsterFromJSONFile('MonsterJSON/debug.json'))
+    self.monster = Monster(self, LoadMonsterFromJSONFile('MonsterJSON/monster_default.json'))
     
     self.uiManager = UIManager(self.hero, self.monster)
     

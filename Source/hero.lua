@@ -177,7 +177,9 @@ local function damageFrames(img)
 end
 
 local function deathAnim(hero)
+    print('death')
     hero:spriteAngle({state = 'deathSpiral', slice = 1})
+    print('anim')
     while not hero.sprites.hero.img:loopFinished() do
         coroutine.yield()
     end
@@ -351,6 +353,7 @@ end
 
 function Hero:slain()
     self.co = {}
+    print('slain')
     self.state = 'slain'
     self.sector = 1
     CoCreate(self.co, 'deathAnim', deathAnim, self)
@@ -367,8 +370,11 @@ function Hero:takeDmg(dmg)
     SoundManager:playSound(SoundManager.kSoundHeroDmg)
     if self.hp <= 0 then
         self.hp = 0
+
         self.battleRing:endBattle(false)
+
         self:slain()
+
     end
     CoCreate(self.co, "damaged", damageFrames, self.sprites.hero.img)
 end

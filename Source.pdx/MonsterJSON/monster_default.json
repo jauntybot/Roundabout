@@ -1,5 +1,5 @@
 {
-	"monsterName": "Default Monster",
+	"monsterName": "flyswatter",
 	"hp" : 150.0,
 	"ringImages" : {
 		"fadeAttack" : {
@@ -56,99 +56,32 @@
 			"sequenceBeats": [
 				{
 					"fadeAttack": {
-						"slices": [ 5 ],
+						"slices": [ 0 ],
+						"speed": 1.0,
 						"damage": 5.5
 					},
 					"vulnerable": {
 						"slices": [ 2,3 ],
+						"speed": 1.0,
 						"damageMultiplier": 1.5
 					}
 				},
 				{
 					"fadeAttack": {
-						"slices": [ 4, 6 ],
+						"slices": [ -1, 1 ],
+						"speed": 1.0,
 						"damage": 3.5
 					},
 					"vulnerable": {
-						"slices": [ 2,3 ],
+						"slices": [ -2,2 ],
+						"speed": 1.0,
 						"damageMultiplier": 1.5
 					}
 				}, 
 				{
 					"vulnerable": {
-						"slices": [ 2,3 ],
-						"damageMultiplier": 1.5
-					}
-				}
-			]
-
-		},
-		{
-			"sequenceName": "SmallQuickAttackRight",
-			"stage": 1,
-			"staminaCost": 15.0,
-			"monsterAnim": "SmallAttackRight",
-			"sequencePace": 0.5,
-			"sequenceBeats": [
-				{
-					"fadeAttack": {
-						"slices": [ 3 ],
-						"damage": 5.5
-					},
-					"vulnerable": {
-						"slices": [ 5,6 ],
-						"damageMultiplier": 1.5
-					}
-				},
-				{
-					"fadeAttack": {
-						"slices": [ 2,4 ],
-						"damage": 3.5
-					},
-					"vulnerable": {
-						"slices": [ 5,6 ],
-						"damageMultiplier": 1.5
-					}
-				}, 
-				{
-					"vulnerable": {
-						"slices": [ 5,6 ],
-						"damageMultiplier": 1.5
-					}
-				}
-			]
-
-		},
-		{
-			"sequenceName": "SmallQuickAttackUp",
-			"stage": 1,
-			"staminaCost": 15.0,
-			"monsterAnim": "SmallAttackUp",
-			"sequencePace": 0.5,
-			"sequenceBeats": [
-				{
-					"fadeAttack": {
-						"slices": [ 1 ],
-						"damage": 5.5
-					},
-					"vulnerable": {
-						"slices": [ 3,4,5 ],
-						"damageMultiplier": 1.5
-					}
-				},
-				{
-					"fadeAttack": {
-						"slices": [ 2, 6 ],
-						"damage": 3.5
-					},
-					"vulnerable": {
-						"slices": [ 3,4,5 ],
-						"damageMultiplier": 1.5
-					}
-				}, 
-				{
-					"vulnerable": {
-						"slices": [ 3,4,5 ],
+						"slices": [ -2.2 ],
+						"speed": 1.0,
 						"damageMultiplier": 1.5
 					}
 				}
@@ -164,68 +97,38 @@
 			"sequenceBeats": [
 				{
 					"fadeAttack": {
-						"slices": [ 5, 6 ],
+						"slices": [ -1, 1 ],
+						"speed": 1.0,
 						"damage": 10.0
 					},
 					"vulnerable": {
 						"slices": [ 1, 4 ],
+						"speed": 1.0,
 						"damageMultiplier": 2.0
 					}
 				},
 				{
 					"fadeAttack": {
-						"slices": [ 1, 4 ],
+						"slices": [ -2, -1 ],
+						"speed": 1.0,
 						"damage": 10.0
 					},
 					"vulnerable": {
 						"slices": [ 5, 6 ],
+						"speed": 1.0,
 						"damageMultiplier": 2.0
 					}
 				},
 				{
 					"fadeAttack": {
-						"slices": [ 1, 4, 5, 6 ],
+						"slices": [ -2, -1, 0, 1 ],
+						"speed": 1.0,
 						"damage": 17.5
 					}
 				}
 
 			]
 
-		},
-		{
-			"sequenceName": "MidRangeAttackRight",
-			"stage": 1,
-			"staminaCost": 35.0,
-			"monsterAnim": "MidRangeAttack",
-			"sequencePace": 1,
-			"sequenceBeats": [
-				{
-					"fadeAttack": {
-						"slices": [ 2, 3 ],
-						"damage": 10.0
-					},
-					"vulnerable": {
-						"slices": [ 1, 4 ],
-						"damageMultiplier": 2.0
-					}
-				},
-				{
-					"fadeAttack": {
-						"slices": [ 1, 4 ],
-						"damage": 10.0
-					},
-					"vulnerable": {
-						"slices": [ 2, 3 ],
-						"damageMultiplier": 2.0
-					}
-				},
-				{
-					"fadeAttack": {
-						"slices": [ 1, 2, 3, 4 ],
-						"damage": 17.5
-					}
-				}
-			]
 		}
 	]
 }
