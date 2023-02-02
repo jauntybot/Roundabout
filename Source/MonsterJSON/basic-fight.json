@@ -1,5 +1,5 @@
 {
-	"monsterName": "flyswatter",
+	"monsterName": "Flyswatter",
 	"hp" : 100.0,
 	"ringImages" : {
 		"fadeAttack" : {
@@ -34,7 +34,7 @@
 			"sequenceName": "AxeSlam",
 			"staminaCost": 15.0,
 			"monsterAnim": "placeholderAnimName",
-			"sequencePace": 0.5,
+			"sequencePace": 1.0,
 			"sequenceBeats": [
 				{
                     "fadeAttack": {
@@ -57,7 +57,8 @@
 						"damage": 10
 					},
                     "vulnerable": {
-                        "slices": [-2, 2]
+                        "slices": [-2, 2],
+                        "speed" : 1.0
                     }
                 }, 
                 {
@@ -67,7 +68,8 @@
 						"damage": 10
 					},
                     "vulnerable": {
-                        "slices": [-2, 2]
+                        "slices": [-2, 2],
+                        "speed" : 1.0
                     }
 				}
                 
@@ -77,7 +79,7 @@
             "sequenceName": "axeSwingRight",
 			"staminaCost": 15.0,
 			"monsterAnim": "placeholderAnimName",
-			"sequencePace": 0.5,
+			"sequencePace": 1.0,
 			"sequenceBeats": [
                 {
                     "fadeAttack":{
@@ -100,7 +102,8 @@
 						"damage": 10
                     },
 					"vulnerable": {
-                        "slices": [2]
+                        "slices": [2],
+                        "speed" : 1.0
                     }
                 },
                 {
@@ -119,7 +122,7 @@
             "sequenceName": "axeSwingLeft",
 			"staminaCost": 15.0,
 			"monsterAnim": "placeholderAnimName",
-			"sequencePace": 0.5,
+			"sequencePace": 1.0,
 			"sequenceBeats": [
                 {
                     "fadeAttack":{
@@ -142,7 +145,8 @@
 						"damage": 10
                     },
 					"vulnerable": {
-                        "slices": [-2]
+                        "slices": [-2],
+                        "speed" : 1.0
                     }
                 },
                 {
@@ -152,7 +156,8 @@
 						"damage": 10
                     },
 					"vulnerable": {
-                        "slices": [-2]
+                        "slices": [-2],
+                        "speed" : 1.0
                     }
 				}
             ]
@@ -161,7 +166,7 @@
             "sequenceName": "axeSwatLeft",
 			"staminaCost": 15.0,
 			"monsterAnim": "placeholderAnimName",
-			"sequencePace": 0.5,
+			"sequencePace": 1.0,
 			"sequenceBeats": [
                 {
 					"fadeAttack":{
@@ -179,7 +184,8 @@
 				},
                 {
 					"vulnerable": {
-                        "slices": [3, -2]
+                        "slices": [3, -2],
+                        "speed" : 1.0
                     }
 				},
 				{
@@ -189,7 +195,8 @@
 						"damage": 10
                     },
 					"vulnerable": {
-                        "slices": [3, -2]
+                        "slices": [3, -2],
+                        "speed" : 1.0
                     }
 				}
             ]
@@ -198,7 +205,7 @@
             "sequenceName": "axeSwatRight",
 			"staminaCost": 15.0,
 			"monsterAnim": "placeholderAnimName",
-			"sequencePace": 0.5,
+			"sequencePace": 1,
 			"sequenceBeats": [
                 {
 					"fadeAttack":{
@@ -216,7 +223,8 @@
 				},
                 {
 					"vulnerable": {
-                        "slices": [2, 3]
+                        "slices": [2, 3],
+                        "speed" : 1.0
                     }
 				},
 				{
@@ -226,7 +234,8 @@
 						"damage": 10
                     },
 					"vulnerable": {
-                        "slices": [2, 3]
+                        "slices": [2, 3],
+                        "speed" : 1.0
                     }
 				}
             ]

@@ -1,5 +1,5 @@
 {
-	"monsterName": "flyswatter ex",
+	"monsterName": "Flyswatter EX",
 	"hp" : 100.0,
 	"ringImages" : {
 		"fadeAttack" : {
@@ -34,7 +34,7 @@
 			"sequenceName": "axeSlamRightAdv",
 			"staminaCost": 15.0,
 			"monsterAnim": "placeholderAnimName",
-			"sequencePace": 0.5,
+			"sequencePace": 1.0,
 			"sequenceBeats": [
 				{
                     "fadeAttack": {
@@ -99,7 +99,7 @@
 			"sequenceName": "axeSlamLeftAdv",
 			"staminaCost": 15.0,
 			"monsterAnim": "placeholderAnimName",
-			"sequencePace": 0.5,
+			"sequencePace": 1.0,
 			"sequenceBeats": [
 				{
                     "fadeAttack": {
@@ -164,7 +164,7 @@
             "sequenceName": "axeSwingRightAdv",
 			"staminaCost": 15.0,
 			"monsterAnim": "placeholderAnimName",
-			"sequencePace": 0.5,
+			"sequencePace": 1.0,
 			"sequenceBeats": [
                 {
                     "fadeAttack":{
@@ -212,7 +212,7 @@
             "sequenceName": "axeSwingLeftAdv",
 			"staminaCost": 15.0,
 			"monsterAnim": "placeholderAnimName",
-			"sequencePace": 0.5,
+			"sequencePace": 1.0,
 			"sequenceBeats": [
                 {
                     "fadeAttack":{
@@ -260,7 +260,7 @@
             "sequenceName": "axeSwatLeftAdv",
 			"staminaCost": 15.0,
 			"monsterAnim": "placeholderAnimName",
-			"sequencePace": 0.5,
+			"sequencePace": 1.0,
 			"sequenceBeats": [
                 {
 					"fadeAttack":{
@@ -332,7 +332,7 @@
             "sequenceName": "axeSwatRighttAdv",
 			"staminaCost": 15.0,
 			"monsterAnim": "placeholderAnimName",
-			"sequencePace": 0.5,
+			"sequencePace": 1.0,
 			"sequenceBeats": [
                 {
 					"fadeAttack":{
