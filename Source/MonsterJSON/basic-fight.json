@@ -1,5 +1,5 @@
 {
-	"monsterName": "Flyswatter",
+	"monsterName": "flyswatter",
 	"hp" : 100.0,
 	"ringImages" : {
 		"fadeAttack" : {
@@ -219,7 +219,8 @@
                         "slices": [2, 3, 1, -2],
                         "speed" : 1.0,
 						"damage": 10
-                    }
+                
+    }
 				},
                 {
 					"vulnerable": {

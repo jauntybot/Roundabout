@@ -7,8 +7,8 @@ class ('GameManager').extends()
 
 function GameManager:displayStartScreen()
     gmSpec:clear()
-    gmSpec:print("press up for basic fight.")
     gmSpec:print("press down for advanced fight.")
+    gmSpec:print("press up for basic fight.")
     playdate.inputHandlers.pop()
     playdate.inputHandlers.push(self.inputHandlers.startMenu)
 
@@ -22,6 +22,7 @@ end
 function GameManager:init()
 
     self.battleRing = nil
+    self.fps = 30
 
     self.state = 'startMenu'
 

@@ -14,10 +14,9 @@ local function exitAnim(hero)
     local from = hero.crankProd
     local to = 0
     if from > 180 then to = 360 end
-    local dur = hero.crankProd
-    if hero.crankProd > 180 then dur = 360 - hero.crankProd end
-    for f=1,dur do
-        hero.crankProd = from+f/dur*(to - from)
+    local t = math.abs(from - to) / (hero.moveSpeed * 3)
+    for f=1,t do
+        hero.crankProd = from+f/t*(to - from)
         coroutine.yield()
     end
     from = hero.moveDist
@@ -26,6 +25,17 @@ local function exitAnim(hero)
         hero.dist = from+d/hero.entranceDuration*(to - from)
         coroutine.yield()
     end
+end
+
+
+local function deathAnim(hero)
+
+    hero:spriteAngle({state = 'deathSpiral', heroDelay = 100, slice = 1})
+
+    while not hero.sprites.hero.img:loopFinished() do
+        coroutine.yield()
+    end
+    hero:spriteAngle({state = 'slain', heroLoop = true, heroDelay = 100})
 end
 
 local function cooldown(hero)
@@ -87,15 +97,16 @@ local function chargeAttack(hero)
 end
 
 local function attack(hero, target, combo)
-    if combo then
-        hero.co.cooldown = nil
-        local to = hero.weaponRange
-        local from = hero.dist
-        for i=1, 15 do
-            hero.dist = from + i/15 * (to - from)
-            coroutine.yield()
-        end
-    end
+
+     if combo then
+    --     hero.co.cooldown = nil
+    --     local to = hero.weaponRange
+    --     local from = hero.dist
+    --     for i=1, 15 do
+             hero.dist = hero.weaponRange
+    --         coroutine.yield()
+    --     end
+     end
 
     hero:addCooldown(hero.attackCost)
     hero.state = 'attacking'
@@ -109,23 +120,22 @@ local function attack(hero, target, combo)
     hero.moveSpeed = 1
     hero.attackCharge = 0
 
-    for d=1, 15 do coroutine.yield() end
-
     local to = hero.moveDist
     local from = hero.dist
-    local prev = hero.cooldown
+    local t = math.abs(from - to) / (hero.moveSpeed * 4)
 
-    hero.state = 'idle'
     CoCreate(hero.co, "cooldown", cooldown, hero)
 
-    while hero.cooldown > 0 do
-        if to ~= from then
-            hero.dist = from+(1-hero.cooldown/prev)*(to - from)
+    for f=1,t do
+        hero.dist = from+f/t*(to - from)
+        if hero.sprites.weapon.img:loopFinished() then
+            hero.state = 'idle'
+            hero:spriteAngle({paused = false, weaponDelay = 100, heroLoop = true, weaponLoop = true})
         end
         coroutine.yield()
     end
 
-
+    hero.state = 'idle'
     hero:spriteAngle({paused = false, weaponDelay = 100, heroLoop = true, weaponLoop = true})
 end
 
@@ -133,8 +143,26 @@ local function parryTiming(hero)
     hero:addCooldown(hero.parryCost)
     hero.state = 'parry'
     hero:spriteAngle({paused = true, weaponDelay = 50, heroLoop = false, weaponLoop = false})
+    hero.state = 'idle'
 
-    for d=1, hero.parryDelay do coroutine.yield() end
+    hero.sprites.parry.img:setFirstFrame(hero.sprites.parry.loops.buildup.frames[1])
+    hero.sprites.parry.img:setLastFrame(hero.sprites.parry.loops.buildup.frames[2])
+    hero.sprites.parry.img:setPaused(false)
+    hero.sprites.parry.img:reset()
+
+    for d=1, hero.sprites.parry.loops.buildup.duration do coroutine.yield() end
+    SoundManager:playSound(SoundManager.kSoundGuardHold)
+    hero.state = 'perfectParry'
+    hero.sprites.parry.img:setFirstFrame(hero.sprites.parry.loops.perfectParry.frames[1])
+    hero.sprites.parry.img:setLastFrame(hero.sprites.parry.loops.perfectParry.frames[2])
+    hero.sprites.parry.img:reset()
+    for d=1, hero.sprites.parry.loops.perfectParry.duration do coroutine.yield() end
+    hero.state = 'parry'
+    hero.sprites.parry.img:setFirstFrame(hero.sprites.parry.loops.parry.frames[1])
+    hero.sprites.parry.img:setLastFrame(hero.sprites.parry.loops.parry.frames[2])
+    hero.sprites.parry.img:reset()
+    for d=1, hero.sprites.parry.loops.parry.duration do coroutine.yield() end
+    hero.sprites.parry.img:setPaused(true)
 
     if hero.state ~= 'attacking' then
         hero.state = 'idle'
@@ -146,23 +174,22 @@ end
 local function hop(hero, clockwise)
     hero.co.drift = nil
     CoCreate(hero.co, "cooldown", cooldown, hero)
-    
-    local from = hero.crankProd
-    local to = hero.crankProd - 15
+
     hero.state = 'hopCounter'
     if clockwise then 
-        to = hero.crankProd + 15
         hero.state = 'hopClockwise'
     end
 
     hero:spriteAngle({heroLoop = false, heroDelay = 50})
     SoundManager:playSound(SoundManager.kSoundFlutter)
 
-    for d=1, hero.hopDuration do
-        hero.crankProd = from+d/hero.hopDuration*(to - from)
+    for d=0, hero.hopDuration do
         coroutine.yield()
     end
-    hero.state = 'idle'
+    
+    if hero.state == 'hopCounter' or hero.state == 'hopClockwise' then
+        hero.state = 'idle'
+    end
     hero:spriteAngle({heroLoop = true, heroDelay = 100})
 end
 
@@ -176,15 +203,6 @@ local function damageFrames(img)
     end
 end
 
-local function deathAnim(hero)
-    print('death')
-    hero:spriteAngle({state = 'deathSpiral', slice = 1})
-    print('anim')
-    while not hero.sprites.hero.img:loopFinished() do
-        coroutine.yield()
-    end
-    hero:spriteAngle({state = 'slain', heroLoop = true, heroDelay = 100})
-end
 
 class('Hero').extends()
 
@@ -201,7 +219,9 @@ function Hero:spriteAngle(options)
     self.sprites.weapon.img:setFirstFrame(self.sprites.weapon.loops[options.state or self.state][options.slice or self.sector].frames[1])
     self.sprites.weapon.img:setLastFrame(self.sprites.weapon.loops[options.state or self.state][options.slice or self.sector].frames[2])
     
-    self.sprites.hero.img:reset() self.sprites.weapon.img:reset()
+    self.sprites.hero.img:reset() 
+    self.sprites.weapon.img:reset()
+
 end
 
 function Hero:init(battleRing)
@@ -276,15 +296,27 @@ function Hero:init(battleRing)
                     {frames = {60, 60}, flip = gfx.kImageUnflipped, topSort = false},
                 }
             }
+        },
+        parry = {
+            img = AnimatedImage.new("Images/2circleParry.gif", {delay = 50, loop = false}),
+            loops = {
+                buildup = {frames = {1, 11}, duration = 16.5},
+                perfectParry = {frames = {12, 14}, duration = 6},
+                parry = {frames = {15, 20}, duration = 9}
+            }
         }
     }
     assert(self.sprites.hero.img)
     assert(self.sprites.weapon.img)
+    assert(self.sprites.parry.img)
+    self.sprites.hero.loops.perfectParry = self.sprites.hero.loops.attacking
     self.sprites.hero.loops.parry = self.sprites.hero.loops.attacking
     self.sprites.weapon.loops.hopClockwise = self.sprites.weapon.loops.idle
     self.sprites.weapon.loops.hopCounter = self.sprites.weapon.loops.idle
+    self.sprites.weapon.loops.perfectParry = self.sprites.weapon.loops.attacking
     self.sprites.weapon.loops.parry = self.sprites.weapon.loops.attacking
     self.sprites.weapon.loops.deathSpiral = self.sprites.weapon.loops.slain
+    self.sprites.parry.img:setPaused(true)
 
     self.pos = {x=self.battleRing.center.x,y=170}
     self.sector = 4
@@ -293,21 +325,21 @@ function Hero:init(battleRing)
 
     self.state = 'idle'
 
-    self.moveSpeed = 1
+    self.moveSpeed = 4
     self.moveDist = 96
-    self.hopDuration = 15
+    self.hopDuration = 9
 
     self.attackDist = 32
     self.attackSpeed = 20
     self.attackDmg = 5
     self.weaponRange = 56
 
-    self.chargeRate = 0.15
+    self.chargeRate = 0.25
     self.maxCharge = 10
     self.attackCharge = 0
 
-    self.driftDelay = 20
-    self.driftSpeed = 2
+    self.driftDelay = 10
+    self.driftSpeed = 4
 
     self.hp = 100
     self.maxHP = 100
@@ -322,9 +354,9 @@ function Hero:init(battleRing)
     self.cooldownMax = 30
     self.comboValues = {}
 
-    self.parryDelay = 15
+    self.parryDelay = 10
 
-    self.entranceDuration = 50
+    self.entranceDuration = 30
 
     self.co = {}
 
@@ -381,20 +413,20 @@ end
 
 function Hero:chargeAttack()
 -- if the hero is able to initiate a new action
-    if self.cooldown <= 0 and self.state == 'idle' then
+    if self.cooldown <= 0 and (self.state == 'idle' or self.co.hop ~= nil) then
         self.state = 'attacking'
         self.co.regen = nil
         self.co.drift = nil
         CoCreate(self.co, "charge", chargeAttack, self)
-    elseif self.comboValues ~= nil then
-        for key, value in pairs(self.comboValues) do
-            if self.cooldown <= value + 1 and self.cooldown >= value - 1 then
-                self.state = 'attacking'
-                CoCreate(self.co, "attack", attack, self, self.battleRing.monster, true)
-                self.comboValues = {}
-                --self.battleRing.cooldownSlider:clearSegments()
-            end
-        end
+    -- elseif self.comboValues ~= nil then
+    --     for key, value in pairs(self.comboValues) do
+    --         if self.cooldown <= value + 1 and self.cooldown >= value - 1 then
+    --             self.state = 'attacking'
+    --             CoCreate(self.co, "attack", attack, self, self.battleRing.monster, true)
+    --             self.comboValues = {}
+    --             --self.battleRing.cooldownSlider:clearSegments()
+    --         end
+    --     end
     end
 end
 
@@ -413,7 +445,6 @@ function Hero:parry()
         self.co.regen = nil
         self.co.drift = nil
         CoCreate(self.co, "parry", parryTiming, self)
-        SoundManager:playSound(SoundManager.kSoundGuardHold)
     end
 end
 
@@ -425,24 +456,22 @@ end
 
 -- translates crankProd to a position along a circumference
 function Hero:moveByCrank(change)
--- apply crank delta to stored crank product var at a ratio of 180 to 1 slice if not hopping
-    if self.co.hop == nil then
-        local to = self.crankProd + change/self.battleRing.divisions * self.moveSpeed
-        local toSlice = math.floor((to+self.battleRing.sliceAngle/2)/ self.battleRing.sliceAngle) + 1
-        local fromSlice = math.floor((self.crankProd+self.battleRing.sliceAngle/2)/ self.battleRing.sliceAngle) + 1
-        if toSlice ~= fromSlice and self.state == 'idle' then 
-            self:addCooldown(self.moveCost)
-            CoCreate(self.co, "hop", hop, self, toSlice > fromSlice)
-        else
-            self.crankProd += change/(self.battleRing.divisions) * self.moveSpeed
+-- apply crank delta to stored crank product var at a ratio of 180 to 1 slice
+    local to = self.crankProd + change/self.battleRing.divisions * self.moveSpeed
+    local toSlice = math.floor((to+self.battleRing.sliceAngle/2)/ self.battleRing.sliceAngle) + 1
+    local fromSlice = math.floor((self.crankProd+self.battleRing.sliceAngle/2)/ self.battleRing.sliceAngle) + 1
+    if toSlice ~= fromSlice and self.state == 'idle' then 
+        CoCreate(self.co, "hop", hop, self, toSlice > fromSlice)
+    else
+        self.crankProd += change/(self.battleRing.divisions) * self.moveSpeed
 -- wrap our product inside the bounds of 0-360
-            if self.crankProd > 360 then
-                self.crankProd -= 360
-            elseif self.crankProd < 0 then
-                self.crankProd += 360
-            end
+        if self.crankProd > 360 then
+            self.crankProd -= 360
+        elseif self.crankProd < 0 then
+            self.crankProd += 360
         end
     end
+
     -- if (change ~= 0 and self.co.hop == nil and self.battleRing.state == 'battling') then
     --     CoCreate(self.co, "drift", prodDrift, self)
     -- end
@@ -478,8 +507,12 @@ function Hero:update()
 end
 
 function Hero:draw()
+
     if not self.sprites.weapon.loops[self.state][self.sector].topSort then
         self.sprites.weapon.img:drawCentered(self.pos.x, self.pos.y, self.sprites.weapon.loops[self.state][self.sector].flip)
+    end
+    if not self.sprites.parry.img:getPaused() then
+        self.sprites.parry.img:drawCentered(self.pos.x, self.pos.y, gfx.kImageUnflipped)
     end
     self.sprites.hero.img:drawCentered(self.pos.x, self.pos.y, self.sprites.hero.loops[self.state][self.sector].flip)
     if self.sprites.weapon.loops[self.state][self.sector].topSort then

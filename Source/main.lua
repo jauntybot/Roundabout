@@ -23,7 +23,7 @@ local gameManager = GameManager()
 
 local function setup()
 -- set frame rate; sync w/ AnimatedImage delay
-    playdate.display.setRefreshRate(50)
+    playdate.display.setRefreshRate(gameManager.fps)
     gfx.setBackgroundColor(gfx.kColorClear)
 
 -- Initialize crank alert
