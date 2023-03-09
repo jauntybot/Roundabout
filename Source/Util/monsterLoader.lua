@@ -75,3 +75,8 @@ function LoadMonsterFromJSONFile(path)
     return monster
 
 end
+
+function LoadHeroFromJSONFile(path)
+
+
+end

@@ -163,12 +163,6 @@ local function parryTiming(hero)
     hero.sprites.parry.img:reset()
     for d=1, hero.sprites.parry.loops.parry.duration do coroutine.yield() end
     hero.sprites.parry.img:setPaused(true)
-
-    if hero.state ~= 'attacking' then
-        hero.state = 'idle'
-        hero:spriteAngle({paused = false, weaponDelay = 100, heroLoop = true, weaponLoop = true})
-        CoCreate(hero.co, "cooldown", cooldown, hero)
-    end
 end
 
 local function hop(hero, clockwise)
@@ -300,9 +294,9 @@ function Hero:init(battleRing)
         parry = {
             img = AnimatedImage.new("Images/2circleParry.gif", {delay = 50, loop = false}),
             loops = {
-                buildup = {frames = {1, 11}, duration = 16.5},
-                perfectParry = {frames = {12, 14}, duration = 6},
-                parry = {frames = {15, 20}, duration = 9}
+                buildup = {frames = {1, 5}, duration = 8},
+                perfectParry = {frames = {6, 8}, duration = 6},
+                parry = {frames = {9, 14}, duration = 9}
             }
         }
     }
@@ -321,7 +315,7 @@ function Hero:init(battleRing)
     self.pos = {x=self.battleRing.center.x,y=170}
     self.sector = 4
     self.dist = 160
-    self.crankProd = 180
+    self.crankProd = 0
 
     self.state = 'idle'
 
@@ -369,7 +363,9 @@ function Hero:init(battleRing)
         upButtonUp = function() self:releaseAttack(self.battleRing.monster) end,
         BButtonUp = function() self:releaseAttack(self.battleRing.monster) end,
         downButtonDown = function() self:parry() end,
-        AButtonDown = function() self:parry() end
+        AButtonDown = function() self:parry() end,
+        downButtonUp = function() self:cancelParry() end,
+        AButtonUp = function() self:cancelParry() end
     }
 
     self:spriteAngle({})
@@ -448,6 +444,16 @@ function Hero:parry()
     end
 end
 
+function Hero:cancelParry()
+    if self.state ~= 'attacking' then
+        self.state = 'idle'
+        self:spriteAngle({paused = false, weaponDelay = 100, heroLoop = true, weaponLoop = true})
+        CoCreate(self.co, "cooldown", cooldown, self)
+        self.sprites.parry.img:setPaused(true)
+        self.sprites.weapon.img:setPaused(false)
+    end
+end
+
 function Hero:parryHit(target)
     self:addCooldown(self.parryCost)
     CoCreate(self.co, "attack", attack, self, target, true)
@@ -493,8 +499,8 @@ function Hero:applyPosition()
         self:spriteAngle({})
     end
 -- calculate hero's position on circumference
-    local _x = self.dist * math.cos((self.crankProd-90)*3.14159/180) + self.battleRing.center.x
-    local _y = self.dist * math.sin((self.crankProd-90)*3.14159/180) + self.battleRing.center.y
+    local _x = self.dist * math.cos((self.crankProd+90)*3.14159/180) + self.battleRing.center.x
+    local _y = self.dist * math.sin((self.crankProd+90)*3.14159/180) + self.battleRing.center.y
 
     self.pos = {x=_x, y=_y}
 end

@@ -58,6 +58,7 @@ end
 
 function BattleRing:startBattle()
     spec:watch(self.hero, "state")
+    spec:watch(self.hero, "crankProd")
     coroutineCreate(self.co, 'battleStart', battleStartCutscene, self, self.hero, self.monster)
     SoundManager:playSong('Audio/battleLoop', 0.333)
 end
@@ -65,6 +66,7 @@ end
 function BattleRing:endBattle(win)
     self.state = 'endBattle'
     spec:unwatch(self.hero, "state")
+    spec:unwatch(self.hero, "crankProd")
     spec:clear()
     spec:print("press up to reset.")
     playdate.inputHandlers.pop()
@@ -89,8 +91,8 @@ end
 
 function BattleRing:draw()
     self.bgImage:drawCentered(200, 120)
-    if self.state == 'battling' then self.monster:drawAttacks() end
-    self.divisionsImage:drawCentered(self.center.x, self.center.y)
+    if self.state == 'battling' then self.monster:drawAttacks(self.monster.dir) end
+    --self.divisionsImage:drawCentered(self.center.x, self.center.y)
     self.monster:draw()
     self.hero:draw()
     if self.state == 'battling' then self.monster:drawTopAttacks() end

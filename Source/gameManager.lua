@@ -29,7 +29,7 @@ function GameManager:init()
     self.inputHandlers = {
         startMenu = {
             upButtonDown = function()
-                self:displayBattleState('monsterJSON/basic-fight.json')
+                self:displayBattleState('monsterJSON/sprite-angle.json')
                 self.state = 'battling'
             end,
             downButtonDown = function()

@@ -35,7 +35,11 @@ local function fadeAttack(monster, hero, slice, speed)
 
     table.insert(monster.sprites.fadeAttack.pool, #monster.sprites.fadeAttack.pool+1, fade)
     coroutine.yield()
-    for d=1, monster.sprites.fadeAttack.imgs.duration * speed * 0.9 do coroutine.yield() end
+    for d=1, monster.sprites.fadeAttack.imgs.duration * speed * 0.4 do 
+        coroutine.yield() 
+        monster.dir = hero.crankProd
+    end
+    for d=1, monster.sprites.fadeAttack.imgs.duration * speed * 0.5 do coroutine.yield() end
     SoundManager:playSound(SoundManager.kSoundFadeAttack)
     for d=1, monster.sprites.fadeAttack.imgs.duration * speed * 0.1 do coroutine.yield() end
     if (hero.sector == slice) then
@@ -237,7 +241,7 @@ function Monster:init(battleRing, options)
         fadeAttack = {
             imgs = {   
                 southPath = "Images/fadeAttackSouth.gif",
-                southWestPath = "Images/fadeAttackSouthWest.gif",
+                southWestPath = "Images/fadeAttackSouth.gif",
                 anim = {delay = 100, loop = false},
                 duration = 1.2 * self.battleRing.gameManager.fps
             },
@@ -295,6 +299,7 @@ function Monster:init(battleRing, options)
     self.hp = options.hp or 100
 
     self.dmg = 10
+    self.dir = 0
     self.attackSequences = options.attackSequences
 
     self.co = {
@@ -359,10 +364,10 @@ function Monster:takeDmg(dmg, sector)
 end
 
 
-function Monster:drawAttacks()
+function Monster:drawAttacks(angle)
     for i, a in ipairs(self.sprites.fadeAttack.pool) do
         if not a.img:loopFinished() then
-            a.img:drawCentered(self.battleRing.center.x, self.battleRing.center.y, a.flip)
+            a.img:drawRotated(self.battleRing.center.x, self.battleRing.center.y, angle)
         end
     end
     for i, v in ipairs(self.sprites.vulnerable) do
