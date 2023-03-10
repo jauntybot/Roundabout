@@ -1,0 +1,134 @@
+{
+	"monsterName": "flyswatter",
+	"hp" : 150.0,
+	"ringImages" : {
+		"fadeAttack" : {
+			"south" : {
+				"imagePath" : "Images/fadeAttackSouth.gif",
+				"speed" : 80,
+				"frames" : 12
+			},
+			"southWest": {
+				"imagePath" : "Images/fadeAttackSouthWest.gif",
+				"speed" : 80,
+				"frames" : 12
+			}
+		},
+		"vulnerable" :  {
+			"any" : {
+				"imagePath" : "Images/vulnerability.gif",
+				"speed" : 80,
+				"frames" : 6
+			}
+		},
+		"projectile" : {
+			"any" : {
+				"imagePath" : "Images/projectile.gif",
+				"speed" : 80,
+				"frames": 5
+			}
+		}
+	},
+	"attackPatterns": [
+		{
+			"stages": [
+				[ 1, 1, 1],
+				[ 1, 1, 2],
+				[ 1, 2, 1]
+			]
+		},
+		{
+			"stages": [
+				[ 1, 2, 2],
+				[ 2, 2, 2, 2],
+				[ 2, 3, 2],
+				[ 1, 2, 2, 3]
+			]
+		}
+	],
+	"attackSequences": [
+		{
+			"sequenceName": "smallQuickAttackLeft",
+			"stage": 1,
+			"staminaCost": 15.0,
+			"monsterAnim": "placeholderAnimName",
+			"sequencePace": 0.5,
+			"sequenceBeats": [
+				{
+					"fadeAttack": {
+						"slices": [ 0 ],
+						"speed": 1.0,
+						"damage": 5.5
+					},
+					"vulnerable": {
+						"slices": [ 2,3 ],
+						"speed": 1.0,
+						"damageMultiplier": 1.5
+					}
+				},
+				{
+					"fadeAttack": {
+						"slices": [ -1, 1 ],
+						"speed": 1.0,
+						"damage": 3.5
+					},
+					"vulnerable": {
+						"slices": [ -2,2 ],
+						"speed": 1.0,
+						"damageMultiplier": 1.5
+					}
+				}, 
+				{
+					"vulnerable": {
+						"slices": [ -2.2 ],
+						"speed": 1.0,
+						"damageMultiplier": 1.5
+					}
+				}
+			]
+
+		},
+		{
+			"sequenceName": "MidRangeAttackLeft",
+			"stage": 1,
+			"staminaCost": 35.0,
+			"monsterAnim": "MidRangeAttack",
+			"sequencePace": 1,
+			"sequenceBeats": [
+				{
+					"fadeAttack": {
+						"slices": [ -1, 1 ],
+						"speed": 1.0,
+						"damage": 10.0
+					},
+					"vulnerable": {
+						"slices": [ 1, 4 ],
+						"speed": 1.0,
+						"damageMultiplier": 2.0
+					}
+				},
+				{
+					"fadeAttack": {
+						"slices": [ -2, -1 ],
+						"speed": 1.0,
+						"damage": 10.0
+					},
+					"vulnerable": {
+						"slices": [ 5, 6 ],
+						"speed": 1.0,
+						"damageMultiplier": 2.0
+					}
+				},
+				{
+					"fadeAttack": {
+						"slices": [ -2, -1, 0, 1 ],
+						"speed": 1.0,
+						"damage": 17.5
+					}
+				}
+
+			]
+
+		}
+	]
+}

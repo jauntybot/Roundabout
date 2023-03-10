@@ -35,22 +35,19 @@ local function fadeAttack(monster, hero, slice, speed)
 
     table.insert(monster.sprites.fadeAttack.pool, #monster.sprites.fadeAttack.pool+1, fade)
     coroutine.yield()
+-- Aim dir delay
     for d=1, monster.sprites.fadeAttack.imgs.duration * speed * 0.4 do 
         coroutine.yield() 
         monster.dir = hero.crankProd
     end
+-- Audio delay
     for d=1, monster.sprites.fadeAttack.imgs.duration * speed * 0.5 do coroutine.yield() end
     SoundManager:playSound(SoundManager.kSoundFadeAttack)
     for d=1, monster.sprites.fadeAttack.imgs.duration * speed * 0.1 do coroutine.yield() end
-    if (hero.sector == slice) then
-        if hero.state ~= 'parry' and hero.state ~= 'perfectParry' then
-            hero:takeDmg(monster.dmg)
-        elseif hero.state == 'perfectParry' then
-            hero:parryHit(monster)
-        elseif hero.state == 'parry' then
-            hero:takeDmg(monster.dmg/2)
-            hero:parryHit(monster)
-        end
+-- Apply damage
+    
+    if (hero.crankProd <= monster.dir + 30 and hero.crankProd >= monster.dir - 30) then
+        hero:takeDmg(monster.dmg)
     end
     
     table.remove(monster.sprites.fadeAttack.pool, tableFind(monster.sprites.fadeAttack.pool, fade))
