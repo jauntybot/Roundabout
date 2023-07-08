@@ -1,0 +1,126 @@
+{
+	"monsterName": "LVL 06",
+	"hp" : 100.0,
+	"attackSequences": [
+		{
+			"sequenceName": "",
+			"staminaCost": 15.0,
+			"monsterAnim": "",
+			"targetLock": true,
+			"static": true,
+			"sequenceInterval": 40,
+			"sequencePace": 1.0,
+			"sequenceBeats": [
+				{
+					"sliceAttack": {
+						"offsets":[14],
+						"speed": 1.0,
+						"damage": 10
+					}
+				},
+				{
+					"sliceAttack": {
+						"offsets":[8],
+						"speed": 1.0,
+						"damage": 10
+					},
+					"vulnerable": {
+						"offsets": [11],
+						"speed": 1.0
+					}
+				},
+				{
+					"sliceAttack": {
+						"offsets":[21],
+						"speed": 1.0,
+						"damage": 10
+					}
+				},
+				{
+					"sliceAttack": {
+						"offsets":[17],
+						"speed": 1.0,
+						"damage": 10
+					}
+				},
+				{},
+				{
+					"sliceAttack": {
+						"offsets":[6],
+						"speed": 1.0,
+						"damage": 10
+					}
+				},
+				{
+					"sliceAttack": {
+						"offsets":[8, 21],
+						"speed": 1.0,
+						"damage": 10
+					}
+				},
+				{
+					"projectile": {
+						"offsets": [10, 12],
+						"patterns": ["sine", "sine"],
+						"speed": 1.0,
+						"damage": 10,
+						"launchDelay": 15
+					}
+				},
+				{
+					"vulnerable": {
+						"offsets": [15],
+						"speed": 1.0
+					}
+				},
+				{
+					"sliceAttack": {
+						"offsets":[14, 28],
+						"speed": 1.0,
+						"damage": 10
+					}
+				},
+				{
+					"sliceAttack": {
+						"offsets":[1],
+						"speed": 1.0,
+						"damage": 10
+					}
+				},
+				{
+					"sliceAttack": {
+						"offsets":[3],
+						"speed": 1.0,
+						"damage": 10
+					}
+				},
+				{
+					"projectile": {
+						"offsets": [23],
+						"patterns": ["sine"],
+						"speed": 1.0,
+						"damage": 10,
+						"launchDelay": 15
+					}
+				},
+				{
+					"projectile": {
+						"offsets": [24],
+						"patterns": ["sine"],
+						"speed": 1.0,
+						"damage": 10,
+						"launchDelay": 15
+					}
+				},
+				{
+					"sliceAttack": {
+						"offsets":[17],
+						"speed": 1.0,
+						"damage": 10
+					}
+				},
+				{}
+			]
+		}
+    ]
+}

@@ -1,0 +1,57 @@
+{
+	"monsterName": "LVL 0",
+	"hp" : 12.0,
+	"attackSequences": [
+		{
+			"sequenceName": "",
+			"staminaCost": 15.0,
+			"monsterAnim": "",
+			"targetLock": true,
+			"static": true,
+			"sequenceInterval": 40,
+			"sequencePace": 1.0,
+			"sequenceBeats": [
+				{},
+				{
+					"sliceAttack": {
+						"offsets":[8],
+						"speed": 1.0,
+						"damage": 10
+					}
+				},
+				{},
+				{},
+				{},
+				{},
+				{
+					"sliceAttack": {
+						"offsets":[21],
+						"speed": 1.0,
+						"damage": 10
+					}
+				},
+				{},
+				{},
+				{
+					"sliceAttack": {
+						"offsets":[14],
+						"speed": 1.0,
+						"damage": 10
+					}
+				},
+				{},
+				{},
+				{},
+				{},
+				{
+					"sliceAttack": {
+						"offsets":[17],
+						"speed": 1.0,
+						"damage": 10
+					}
+				},
+				{}
+			]
+		}
+    ]
+}

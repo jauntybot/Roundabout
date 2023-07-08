@@ -1,0 +1,37 @@
+{
+    "name": "ladybug",
+    "_spriteParams_comment": "not hooked up yet so don't worry about formatting errors",
+    "spriteParams": {
+        "imageTable": "assets/images/hero/hero-sprite.gif",
+        "animStates": {
+            "idle": {
+                "idleS": {"frames": [1, 6]},
+                "idleSW": {"frames": [7, 12]},
+                "idleNW": {"frames": [13, 18]},
+                "idleN": {"frames": [19, 24]},
+                "idleNE": {"frames": [13, 18], "direction": "Graphics.kImageFlippedX"},
+                "idleSE": {"frames": [7, 12], "direction": "Graphics.kImageFlippedX"}
+            }
+        },
+        "delay": 100,
+        "pos": [265, 264],
+        "size": [64, 64],
+        "zIndex": 10
+    },
+    
+    "_baseStats_comment": "lmk what other stats are worth exposing, these are the written params anything else is hardcoded",
+    "hp": 100,
+    "moveSpeed": 1,
+    
+    "cooldownMax": 15,
+    "cooldownRate": 1,
+    
+    "_radius_comment":"These values determine where in the circle the player is when idle and when fully charged w/ a melee attack",
+    "outerRadius": 96,
+    "innerRadius": 32,
+
+    "loadout": {
+        "weapon": "assets/data/weapon-template.json",
+        "equipment": "assets/data/equipment-template.json"
+    }
+}

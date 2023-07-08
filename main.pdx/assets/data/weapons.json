@@ -1,0 +1,12 @@
+{
+    "weaponName": "weapon template",
+    "type": "melee",
+
+    "dmg": 10,
+    "range": 56,
+        
+    "chargeRate": 0.25,
+    "maxCharge": 10,
+
+    "attackCost": 5
+}

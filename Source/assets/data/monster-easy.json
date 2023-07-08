@@ -1,0 +1,80 @@
+{
+	"monsterName": "FLYSWATTER",
+	"hp" : 10.0,
+	"attackSequences": [
+		{
+			"sequenceName": "Cascade",
+			"staminaCost": 15.0,
+			"monsterAnim": "placeholderAnimName",
+			"targetLock": true,
+			"static": false,
+			"sequenceInterval": 40,
+			"sequencePace": 2,
+			"sequenceBeats": [
+				{
+					"sliceAttack": {
+						"offsets": [-2],
+						"speed": 1,
+						"damage": 10
+					},
+					"vulnerable": {
+						"offsets": [-4],
+						"speed": 0.5
+					}
+                },
+                {
+					"sliceAttack": {
+						"offsets": [0],
+						"speed": 1.0,
+						"damage": 10
+					},
+					"vulnerable": {
+						"offsets": [-2],
+						"speed": 1.0
+					}
+                },
+                {
+					"sliceAttack": {
+						"offsets": [2],
+						"speed": 1.0,
+						"damage": 10
+					},
+					"vulnerable": {
+						"offsets": [0],
+						"speed": 1.0
+					}
+                }    
+			]
+		},
+        {
+            "sequenceName": "Cascade",
+			"staminaCost": 15.0,
+			"monsterAnim": "placeholderAnimName",
+			"targetLock": true,
+			"static": false,
+			"sequenceInterval": 40,
+			"sequencePace": 1,
+			"sequenceBeats": [
+                {
+					"sliceAttack": {
+						"offsets": [-3, 3],
+						"speed": 0.75,
+						"damage": 10
+					},
+					"vulnerable": {
+						"offsets": [-12],
+						"speed": 0.75
+					},
+                    "projectile": {
+                        "offsets": [0, 0],
+						"patterns": ["sine", "cosine"],
+						"speed": 0.75,
+						"damage": 10,
+						"launchDelay": 10
+                    }
+                },
+                {}, {}
+            ]
+        }
+    ]
+}
