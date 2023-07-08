@@ -1,6 +1,6 @@
 {
 	"monsterName": "LVL 0",
-	"hp" : 12.0,
+	"hp" : 15.0,
 	"attackSequences": [
 		{
 			"sequenceName": "",

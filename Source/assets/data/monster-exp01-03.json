@@ -61,7 +61,7 @@
 				{
 					"projectile": {
 						"offsets": [10, 12],
-						"patterns": ["sine", "sine"],
+						"patterns": ["cosine", "sine"],
 						"speed": 1.0,
 						"damage": 10,
 						"launchDelay": 15
@@ -97,7 +97,7 @@
 				{
 					"projectile": {
 						"offsets": [23],
-						"patterns": ["sine"],
+						"patterns": ["cosine"],
 						"speed": 1.0,
 						"damage": 10,
 						"launchDelay": 15

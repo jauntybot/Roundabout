@@ -12,19 +12,18 @@ local controlsImage = nil
 
 function MainMenuScene:init()
     MainMenuScene.super.init(self)
+    -- TEMPORARY
+        RunData.currentHP = 100
 
     mainMenu = Noble.Menu.new(false, Noble.Text.ALIGN_CENTER, false, Graphics.kColorBlack, 4,6,0, Noble.Text.FONT_LARGE)
     fightMenu = Noble.Menu.new(false, Noble.Text.ALIGN_CENTER, false, Graphics.kColorBlack, 4,6,0, Noble.Text.FONT_LARGE)
 
     mainMenu:addItem("Fight", function() self:transitionMenu('toFight') end)
     mainMenu:addItem("Manage Hero", function() Noble.transition(HeroMgmtScene, 1, Noble.TransitionType.DIP_TO_BLACK) end)
-    mainMenu:addItem("Controls", function() end)
+    --mainMenu:addItem("Controls", function() end)
     mainMenu:addItem("Credits", function() self:transitionMenu('toCredits') end)
     mainMenu:select(1)
 
-    --fightMenu:addItem("Monster Template", function() 
-    --    GameDataManager:UpdateRunData('currentMonster', 'monsterTemplate')
-    --    Noble.transition(BattleScene, 1, Noble.TransitionType.DIP_TO_BLACK) end)
     fightMenu:addItem("Expedition 01", function()
         RunData.expedition = Expedition(1)
         RunData.currentMonster = RunData.expedition:NextMonster()
@@ -73,14 +72,14 @@ function MainMenuScene:init()
     }
 
     local controlsImageParams = {
-        imageTable = "assets/images/ui/control-scheme",
+        imageTable = "assets/images/ui/control_scheme.png",
         animated = false,
         pos = {x=200, y=120},
         size = {x=400,y=240},
-        zIndex = -100,
+        zIndex = 100,
     }
-    controlsImage = BoutSprite(controlsImageParams)
-    controlsImage:remove()
+    --controlsImage = BoutSprite(controlsImageParams)
+    --controlsImage:remove()
 end
 
 function MainMenuScene:enter()

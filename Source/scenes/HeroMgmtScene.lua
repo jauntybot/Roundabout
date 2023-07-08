@@ -101,16 +101,16 @@ function HeroMgmtScene:enter()
 
     self.uiManager = UIManager(self.hero, nil)
 
-    print(RunData.currentHP)
     if self.nextScene ~= nil then
         print(self.nextScene.name)
         local scene = self.nextScene
         menu:removeItem("hero")
         menu:addItem("rest", function() 
             self.hero.hp = self.hero.hp + 20
+            if self.hero.hp > self.hero.hpMax then self.hero.hp = self.hero.hpMax end
             RunData.currentHP = self.hero.hp
             menu:removeItem("rest")
-            end, "Restore 20 HP.")
+            end, "Restore 20 HP")
 
         RunData.currentMonster = RunData.expedition:NextMonster()
         menu:addItem("next", function() Noble.transition(BattleScene, 1, Noble.TransitionType.DIP_TO_BLACK, 0.2, HeroMgmtScene) end, "Next Fight!")

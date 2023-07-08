@@ -7,20 +7,18 @@ function Expedition:init(exp)
     self.exp = {}
     self.currentMonster = nil
     self.index = 1
-
+    
     if (exp == 1) then
         self.exp = { 'exp0101', 'exp0102', 'exp0103', 'exp0104', 'exp0105' }
         self.currentMonster = self.exp[1]
-
+        
     elseif (exp == 2) then
         self.currentMonster = self.exp[1]
 
     elseif (exp == 3) then
         self.currentMonster = self.exp[1]
-
+        
     end
-
-
 end
 
 function Expedition:NextMonster()
