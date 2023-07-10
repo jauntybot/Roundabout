@@ -1,0 +1,211 @@
+{
+	"monsterName": "LVL 3",
+	"hp" : 15.0,
+	"attackSequences": [
+		{
+			"sequenceName": "",
+			"staminaCost": 15.0,
+			"monsterAnim": "",
+			"targetLock": true,
+			"static": true,
+			"sequenceInterval": 40,
+			"sequencePace": 1.0,
+			"sequenceBeats": [
+				{
+					"sliceAttack": {
+						"offsets":[14],
+						"speed": 1.0,
+						"damage": 10
+					},
+					"projectile": {
+						"offsets": [24],
+						"patterns": ["cosine"],
+						"speed": 1.0,
+						"damage": 10,
+						"launchDelay": 15
+					}
+				},
+				{
+					"sliceAttack": {
+						"offsets":[16],
+						"speed": 1.0,
+						"damage": 10
+					},
+					"projectile": {
+						"offsets": [2],
+						"patterns": ["sine"],
+						"speed": 1.0,
+						"damage": 10,
+						"launchDelay": 15
+					}
+				},
+				{
+					"sliceAttack": {
+						"offsets":[2],
+						"speed": 1.0,
+						"damage": 10
+					},
+					"projectile": {
+						"offsets": [4, 8],
+						"patterns": ["cosine", "cosine"],
+						"speed": 1.0,
+						"damage": 10,
+						"launchDelay": 15
+					}
+				},
+				{
+					"sliceAttack": {
+						"offsets":[10, 22],
+						"speed": 1.0,
+						"damage": 10
+					}
+				},
+				{
+					"sliceAttack": {
+						"offsets":[18],
+						"speed": 1.0,
+						"damage": 10
+					},
+					"vulnerable": {
+						"offsets": [4],
+						"speed": 1.0
+					}
+				},
+				{
+					"sliceAttack": {
+						"offsets":[20],
+						"speed": 1.0,
+						"damage": 10
+					},
+					"projectile": {
+						"offsets": [13, 15],
+						"patterns": ["cosine", "sine"],
+						"speed": 1.0,
+						"damage": 10,
+						"launchDelay": 15
+					}
+				},
+				{
+					"sliceAttack": {
+						"offsets":[6],
+						"speed": 1.0,
+						"damage": 10
+					},
+					"projectile": {
+						"offsets": [8],
+						"patterns": ["sine"],
+						"speed": 1.0,
+						"damage": 10,
+						"launchDelay": 15
+					}
+				},
+				{
+					"sliceAttack": {
+						"offsets":[15],
+						"speed": 1.0,
+						"damage": 10
+					},
+					"projectile": {
+						"offsets": [4],
+						"patterns": ["cosine"],
+						"speed": 1.0,
+						"damage": 10,
+						"launchDelay": 15
+					}
+				},
+				{
+					"sliceAttack": {
+						"offsets":[5, 17],
+						"speed": 1.0,
+						"damage": 10
+					},
+					"projectile": {
+						"offsets": [10],
+						"patterns": ["sine"],
+						"speed": 1.0,
+						"damage": 10,
+						"launchDelay": 15
+					}
+				},
+				{
+					"sliceAttack": {
+						"offsets":[7, 23],
+						"speed": 1.0,
+						"damage": 10
+					},
+					"projectile": {
+						"offsets": [3],
+						"patterns": ["cosine"],
+						"speed": 1.0,
+						"damage": 10,
+						"launchDelay": 15
+					}
+				},
+				{
+					"sliceAttack": {
+						"offsets":[2, 21],
+						"speed": 1.0,
+						"damage": 10
+					},
+					"vulnerable": {
+						"offsets": [15],
+						"speed": 1.0
+					}
+				},
+				{
+					"sliceAttack": {
+						"offsets":[19, 24],
+						"speed": 1.0,
+						"damage": 10
+					}
+				},
+				{
+					"sliceAttack": {
+						"offsets":[3, 12],
+						"speed": 1.0,
+						"damage": 10
+					},
+					"vulnerable": {
+						"offsets": [10],
+						"speed": 1.0
+					}
+				},
+				{
+					"sliceAttack": {
+						"offsets":[1],
+						"speed": 1.0,
+						"damage": 10
+					},
+					"projectile": {
+						"offsets": [4],
+						"patterns": ["cosine"],
+						"speed": 1.0,
+						"damage": 10,
+						"launchDelay": 15
+					}
+				},
+				{
+					"sliceAttack": {
+						"offsets":[20],
+						"speed": 1.0,
+						"damage": 10
+					},
+					"projectile": {
+						"offsets": [6],
+						"patterns": ["sine"],
+						"speed": 1.0,
+						"damage": 10,
+						"launchDelay": 15
+					}
+				},
+				{
+					"sliceAttack": {
+						"offsets":[10, 12],
+						"speed": 1.0,
+						"damage": 10
+					}
+				}
+			]
+		}
+    ]
+}
