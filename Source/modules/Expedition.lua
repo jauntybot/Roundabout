@@ -13,9 +13,11 @@ function Expedition:init(exp)
         self.currentMonster = self.exp[1]
         
     elseif (exp == 2) then
+       
         self.currentMonster = self.exp[1]
 
     elseif (exp == 3) then
+         self.exp = { 'exp0301', 'exp0302', 'exp0303', 'exp0304', 'exp0305','exp0306' ,'exp0307'}
         self.currentMonster = self.exp[1]
         
     end

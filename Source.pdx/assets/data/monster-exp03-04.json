@@ -1,0 +1,81 @@
+{
+	"monsterName": "LV 04",
+	"hp" : 50.0,
+	"attackSequences": [
+		 
+		{
+			"sequenceName": "Level1",
+			"staminaCost": 15.0,
+			"monsterAnim": "placeholderAnimName",
+			"sequenceInterval": 30,
+			"targetLock": true,
+			"sequencePace": 1,
+			"sequenceBeats": [
+				{
+					"sliceAttack": {
+						"offsets": [-10,-12,-14,-16],
+						"speed": 0.2,
+						"damage": 10
+					}
+				},
+				{
+					"sliceAttack": {
+						"offsets": [0],
+						"speed": 1,
+						"damage": 10
+					}
+
+                }, {
+                	"sliceAttack": {
+						"offsets": [2,-2],
+						"speed": 1.4,
+						"damage": 10
+					}
+				},{"sliceAttack": {
+						"offsets": [4],
+						"speed": 0.8,
+						"damage": 10
+					}},{"sliceAttack": {
+						"offsets": [6],
+						"speed": 0.8,
+						"damage": 10
+					}},{
+						"sliceAttack": {
+						"offsets": [8],
+						"speed": 0.8,
+						"damage": 10
+					}
+					},
+                {
+					"sliceAttack": {
+						"offsets": [0],
+						"speed": 1,
+						"damage": 10
+					}
+					
+
+                },{
+                	"sliceAttack": {
+						"offsets": [2,-2],
+						"speed": 1.4,
+						"damage": 10
+					}
+                },{"sliceAttack": {
+						"offsets": [4],
+						"speed": 0.8,
+						"damage": 10
+					}},{"sliceAttack": {
+						"offsets": [6],
+						"speed": 0.8,
+						"damage": 10
+					}},{
+						"sliceAttack": {
+						"offsets": [8],
+						"speed": 0.8,
+						"damage": 10
+					}
+					}
+            ]
+		}
+    ]
+}

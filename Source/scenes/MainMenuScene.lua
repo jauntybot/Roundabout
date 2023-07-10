@@ -29,6 +29,11 @@ function MainMenuScene:init()
         RunData.currentMonster = RunData.expedition:NextMonster()
         Noble.transition(BattleScene, 1, Noble.TransitionType.DIP_TO_BLACK, 0.2, HeroMgmtScene) 
     end)
+    fightMenu:addItem("Expedition 03", function()
+        RunData.expedition = Expedition(3)
+        RunData.currentMonster = RunData.expedition:NextMonster()
+        Noble.transition(BattleScene, 1, Noble.TransitionType.DIP_TO_BLACK, 0.2, HeroMgmtScene) 
+    end)
     fightMenu:select(1)
 
     currentMenu = mainMenu

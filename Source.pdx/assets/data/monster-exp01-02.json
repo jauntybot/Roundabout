@@ -1,0 +1,94 @@
+{
+	"monsterName": "LVL 03",
+	"hp" : 50,
+	"attackSequences": [
+		{
+			"sequenceName": "",
+			"staminaCost": 15.0,
+			"monsterAnim": "",
+			"targetLock": true,
+			"static": true,
+			"sequenceInterval": 40,
+			"sequencePace": 1.0,
+			"sequenceBeats": [
+				{},
+				{
+					"sliceAttack": {
+						"offsets":[8],
+						"speed": 1.0,
+						"damage": 10
+					}
+				},
+				{
+					"sliceAttack": {
+						"offsets":[21],
+						"speed": 1.0,
+						"damage": 10
+					}
+				},
+				{
+					"sliceAttack": {
+						"offsets":[17],
+						"speed": 1.0,
+						"damage": 10
+					}
+				},
+				{},
+				{},
+				{
+					"sliceAttack": {
+						"offsets":[21],
+						"speed": 1.0,
+						"damage": 10
+					}
+				},
+				{
+					"projectile": {
+						"offsets": [10, 12],
+						"patterns": ["cosine", "sine"],
+						"speed": 1.0,
+						"damage": 10,
+						"launchDelay": 15
+					}
+				},
+				{
+					"vulnerable": {
+						"offsets": [15],
+						"speed": 1.0
+					}
+				},
+				{
+					"sliceAttack": {
+						"offsets":[14, 28],
+						"speed": 1.0,
+						"damage": 10
+					}
+				},
+				{
+					"sliceAttack": {
+						"offsets":[1],
+						"speed": 1.0,
+						"damage": 10
+					}
+				},
+				{
+					"sliceAttack": {
+						"offsets":[3],
+						"speed": 1.0,
+						"damage": 10
+					}
+				},
+				{},
+				{},
+				{
+					"sliceAttack": {
+						"offsets":[17],
+						"speed": 1.0,
+						"damage": 10
+					}
+				},
+				{}
+			]
+		}
+    ]
+}
