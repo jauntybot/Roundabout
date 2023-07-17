@@ -27,6 +27,9 @@ DataRefs = {
     exp0305 = "assets/data/monster-exp03-05.json",
     exp0306 = "assets/data/monster-exp03-06.json",
     exp0307 = "assets/data/monster-exp03-07.json",
+    exp0308 = "assets/data/monster-exp03-08.json",
+    exp0309 = "assets/data/monster-exp03-09.json",
+
 }
 
 RunData = {
