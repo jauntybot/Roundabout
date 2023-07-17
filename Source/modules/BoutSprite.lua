@@ -17,7 +17,9 @@ function BoutSprite:init(options)
         self:setCenter(options.center.x, options.center.y)
     end
     self:setZIndex(options.zIndex or 1)
-    self:moveTo(options.pos.x or 240, options.pos.y or 120)
+    if options.pos then
+        self:moveTo(options.pos.x or 240, options.pos.y or 120)
+    end
     self.shake = false
     if options.shake ~= nil then self.shake = options.shake end
 

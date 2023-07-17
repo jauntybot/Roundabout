@@ -1,7 +1,7 @@
+import "libraries/GridViewExample"
+
 HeroMgmtScene = {}
 class("HeroMgmtScene").extends(NobleScene)
-
-local menu
 
 local bgImage
 local ringLight
@@ -25,7 +25,7 @@ end
 
 function HeroMgmtScene:init() 
 
--- environment gfx init
+-- environment Graphics init
     local bgImageParams = {
         imageTable = "assets/images/environment/bgBrick",
         animated = false,
@@ -59,40 +59,15 @@ function HeroMgmtScene:init()
         },
     }
 
--- Create menu to customize run data
-    menu = Noble.Menu.new(false, Noble.Text.ALIGN_CENTER, false, Graphics.kColorBlack, 4,6,0, Noble.Text.FONT_SMALL)
+    self.menu = nil
 
-    menu:addItem("hero", function() GameDataManager:UpdateRunData('hero', 'ladybug') end, "Hero: " .. RunData.hero)
-    menu:addItem("weapon", function() end, "weapon: Sword")
-    menu:addItem("equipment", function() self:scrollMenuItem('equipment') end, "equipment: "..RunData.equipment)
-    menu:select(1)
+    self.gridView = GridView()
+    local handler = self.gridView.inputHandler
+    handler['BButtonDown'] = function()
+        Noble.transition(MainMenuScene, 1, Noble.TransitionType.DIP_TO_BLACK)
+    end
     
-    -- playdate inputHandler for scene, crank or up/down for menu nav, a button select
-    local crankTick = 0
-    HeroMgmtScene.inputHandler = {
-        upButtonDown = function()
-			menu:selectPrevious()
-		end,
-		downButtonDown = function()
-			menu:selectNext()
-		end,
-		cranked = function(change, acceleratedChange)
-			crankTick = crankTick + change
-			if (crankTick > 40) then
-				crankTick = 0
-				menu:selectNext()
-			elseif (crankTick < -40) then
-				crankTick = 0
-				menu:selectPrevious()
-			end
-		end,
-		AButtonDown = function()
-			menu:click()
-		end,
-        -- BButtonDown = function()
-		-- 	Noble.transition(MainMenuScene, 1, Noble.TransitionType.DIP_TO_BLACK)
-		-- end
-    }
+    HeroMgmtScene.inputHandler = handler
 end
 
 function HeroMgmtScene:enter()
@@ -104,19 +79,47 @@ function HeroMgmtScene:enter()
     if self.nextScene ~= nil then
         print(self.nextScene.name)
         local scene = self.nextScene
-        menu:removeItem("hero")
-        menu:addItem("rest", function() 
-            self.hero.hp = self.hero.hp + 20
-            if self.hero.hp > self.hero.hpMax then self.hero.hp = self.hero.hpMax end
-            RunData.currentHP = self.hero.hp
-            menu:removeItem("rest")
-            end, "Restore 20 HP")
 
         RunData.currentMonster = RunData.expedition:NextMonster()
-        menu:addItem("next", function() Noble.transition(BattleScene, 1, Noble.TransitionType.DIP_TO_BLACK, 0.2, HeroMgmtScene) end, "Next Fight!")
+        HeroMgmtScene.inputHandler['AButtonDown'] = function() Noble.transition(BattleScene, 1, Noble.TransitionType.DIP_TO_BLACK, 0.2, HeroMgmtScene) end
+    else
+-- Create menu to customize run data
+        self.menu = Noble.Menu.new(false, Noble.Text.ALIGN_CENTER, false, Graphics.kColorBlack, 4,6,0, Noble.Text.FONT_SMALL)
+
+        self.menu:addItem("hero", function() GameDataManager:UpdateRunData('hero', 'ladybug') end, "Hero: " .. RunData.hero)
+        self.menu:addItem("weapon", function() end, "weapon: Sword")
+        self.menu:addItem("equipment", function() self:scrollMenuItem('equipment') end, "equipment: "..RunData.equipment)
+        self.menu:select(1)
+        
+        -- playdate inputHandler for scene, crank or up/down for menu nav, a button select
+        local crankTick = 0
+        HeroMgmtScene.inputHandler = {
+            upButtonDown = function()
+                self.menu:selectPrevious()
+            end,
+            downButtonDown = function()
+                self.menu:selectNext()
+            end,
+            cranked = function(change, acceleratedChange)
+                crankTick = crankTick + change
+                if (crankTick > 40) then
+                    crankTick = 0
+                    self.menu:selectNext()
+                elseif (crankTick < -40) then
+                    crankTick = 0
+                    self.menu:selectPrevious()
+                end
+            end,
+            AButtonDown = function()
+                self.menu:click()
+            end,
+            BButtonDown = function()
+                Noble.transition(MainMenuScene, 1, Noble.TransitionType.DIP_TO_BLACK)
+            end
+        }
     end
-    menu:addItem("quit", function() Noble.transition(MainMenuScene, 1, Noble.TransitionType.DIP_TO_BLACK) end, "Quit to Main Menu")
 end
+
 -- loop through locally defined options for input slot, updates RunData - runDataAtlas
 function HeroMgmtScene:scrollMenuItem(slot)
     for k,v in ipairs(self.runDataAtlas[slot]) do
@@ -124,7 +127,7 @@ function HeroMgmtScene:scrollMenuItem(slot)
             local i = k + 1
             if i > #self.runDataAtlas[slot] then i = 1 end
             GameDataManager:UpdateRunData(slot, self.runDataAtlas[slot][i])
-            menu:setItemDisplayName(slot, slot..": "..RunData[slot])
+            self.menu:setItemDisplayName(slot, slot..": "..RunData[slot])
             break
         end
     end
@@ -134,9 +137,14 @@ function HeroMgmtScene:update()
 
     self.hero:update() -- used primarily to update graphics, controls are disabled
     self.uiManager:update() -- used to update HP values, graphics to come
-    menu:draw(262, 40) -- draws the actual function of this scene
-    --Noble.Text.draw("Press B to go back.", 265, 120, Noble.Text.ALIGN_CENTER, false, Noble.Text.FONT_SMALL)
-    
+    if self.menu ~= nil then
+        self.menu:draw(262, 40) -- draws the actual function of this scene
+    else
+        if self.gridView.cards ~= nil then
+            self.gridView:update()
+        end
+    end
+
 end
 
 function HeroMgmtScene:finish() 

@@ -118,16 +118,12 @@ function Monster:init(battleScene, monsterJSON)
 end
 
 local function entranceAnim(sprite, delay)
-    print('entering')
     sprite.animation:setState('idle')
     for d=1,delay do coroutine.yield() end
-    print('delayed')
     local from = -39
     local to = 120
     local current
-    print('loop start')
     for d=1,15 do
-        print('loop')
         current = from+d/15*(to - from)
         
         sprite:moveTo(sprite.x, current)
